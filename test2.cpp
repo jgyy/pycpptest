@@ -31,20 +31,17 @@ public:
         
         static std::shared_ptr<Logger> getInstance() {
             // TODO: Implement thread-safe singleton pattern using double-checked locking
-            std::lock_guard<std::mutex> lock(mutex);
-            if (instance == nullptr) {
-                instance = std::shared_ptr<Logger>(new Logger());
-            }
-            return instance;
+            // Return the singleton instance of the logger
         }
         
         void log(const std::string& message) {
-            std::lock_guard<std::mutex> lock(mutex);
-            logs.push_back(message);
+            // TODO: Implement thread-safe logging
+            // Add the message to logs vector
         }
         
         std::vector<std::string> getLogs() const {
-            return logs;
+            // TODO: Implement getter for logs
+            // Return the vector of logged messages
         }
     };
 
@@ -62,13 +59,7 @@ public:
         V get(const K& key) {
             // TODO: Implement get operation
             // Return the value if found, or throw exception if not found
-            auto it = map.find(key);
-            if (it == map.end()) {
-                throw std::runtime_error("Key not found");
-            }
-            
-            cache.splice(cache.begin(), cache, it->second);
-            return it->second->second;
+            // Move accessed item to front of cache (most recently used position)
         }
         
         void put(const K& key, const V& value) {
@@ -76,25 +67,10 @@ public:
             // If key exists, update value and move to front
             // If key doesn't exist, add new entry
             // If cache is full, remove least recently used item
-            auto it = map.find(key);
-            if (it != map.end()) {
-                it->second->second = value;
-                cache.splice(cache.begin(), cache, it->second);
-                return;
-            }
-            
-            if (cache.size() >= capacity) {
-                auto last = cache.back();
-                map.erase(last.first);
-                cache.pop_back();
-            }
-            
-            cache.push_front({key, value});
-            map[key] = cache.begin();
         }
         
         size_t size() const {
-            return cache.size();
+            // TODO: Return current size of cache
         }
     };
 
@@ -111,49 +87,16 @@ public:
         std::string serialize(TreeNode* root) {
             // TODO: Implement tree serialization
             // Convert binary tree to a string representation
-            if (!root) return "null";
-            
-            std::string result = std::to_string(root->val);
-            result += "," + serialize(root->left);
-            result += "," + serialize(root->right);
-            
-            return result;
         }
         
         TreeNode* deserialize(const std::string& data) {
             // TODO: Implement tree deserialization
             // Convert string representation back to binary tree
-            std::queue<std::string> nodes;
-            std::string current;
-            for (char c : data) {
-                if (c == ',') {
-                    nodes.push(current);
-                    current.clear();
-                } else {
-                    current += c;
-                }
-            }
-            if (!current.empty()) {
-                nodes.push(current);
-            }
-            
-            return deserializeHelper(nodes);
         }
         
     private:
         TreeNode* deserializeHelper(std::queue<std::string>& nodes) {
-            if (nodes.empty()) return nullptr;
-            
-            std::string val = nodes.front();
-            nodes.pop();
-            
-            if (val == "null") return nullptr;
-            
-            TreeNode* node = new TreeNode(std::stoi(val));
-            node->left = deserializeHelper(nodes);
-            node->right = deserializeHelper(nodes);
-            
-            return node;
+            // TODO: Helper method for deserialization
         }
     };
 
@@ -163,42 +106,11 @@ public:
         void sort(std::vector<int>& arr) {
             // TODO: Implement parallel merge sort
             // Use std::thread for parallelization
-            if (arr.size() <= 1) return;
-            
-            size_t mid = arr.size() / 2;
-            std::vector<int> left(arr.begin(), arr.begin() + mid);
-            std::vector<int> right(arr.begin() + mid, arr.end());
-            
-            // Create threads for sorting both halves
-            std::thread leftThread([&]() { sort(left); });
-            std::thread rightThread([&]() { sort(right); });
-            
-            leftThread.join();
-            rightThread.join();
-            
-            // Merge the sorted halves
-            merge(arr, left, right);
         }
         
     private:
         void merge(std::vector<int>& arr, const std::vector<int>& left, const std::vector<int>& right) {
-            size_t i = 0, j = 0, k = 0;
-            
-            while (i < left.size() && j < right.size()) {
-                if (left[i] <= right[j]) {
-                    arr[k++] = left[i++];
-                } else {
-                    arr[k++] = right[j++];
-                }
-            }
-            
-            while (i < left.size()) {
-                arr[k++] = left[i++];
-            }
-            
-            while (j < right.size()) {
-                arr[k++] = right[j++];
-            }
+            // TODO: Implement merge operation for sorted arrays
         }
     };
 };
@@ -272,7 +184,8 @@ void runTests() {
     std::cout << "All tests passed!" << std::endl;
 }
 
-int main() {
+int main()
+{
     runTests();
     return 0;
 }
