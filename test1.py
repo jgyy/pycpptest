@@ -14,6 +14,7 @@ def reverse_string(s: str) -> str:
         >>> reverse_string("hello")
         "olleh"
     """
+    # TODO: Implement this function
     result = ""
     for i in range(len(s) - 1, -1, -1):
         result += s[i]
@@ -33,6 +34,7 @@ def find_missing_number(nums: list) -> int:
         >>> find_missing_number([3,0,1])
         2
     """
+    # TODO: Implement this function
     n = len(nums)
     expected_sum = (n * (n + 1)) / 2
     actual_sum = sum(nums)
@@ -52,6 +54,7 @@ def is_balanced_parentheses(s: str) -> bool:
         >>> is_balanced_parentheses("(()")
         False
     """
+    # TODO: Implement this function
     count = 0
     for char in s:
         if char == '(':
@@ -75,6 +78,7 @@ def merge_sorted_lists(list1: list, list2: list) -> list:
         >>> merge_sorted_lists([1,3,5], [2,4,6])
         [1,2,3,4,5,6]
     """
+    # TODO: Implement this function
     result = []
     i = j = 0
     while i < len(list1) and len(list2):
