@@ -10,6 +10,7 @@ Date: [Current Date]
 
 from typing import List
 import time
+from collections import Counter
 
 class TreeNode:
     """Binary Tree Node class for Problem 4"""
@@ -22,26 +23,34 @@ class TreeNode:
 def first_unique_char(s: str) -> int:
     """
     Find the first non-repeating character in a string and return its index.
-    
     Args:
         s (str): Input string
     Returns:
         int: Index of first unique character, or -1 if none exists
     """
-    pass
+    char_count = Counter(s)
+    for idx, char in enumerate(s):
+        if char_count[char] == 1:
+            return idx
+    return -1
 
 
 # Problem 2: Array Processing
 def max_subarray_sum(nums: List[int]) -> int:
     """
     Find the maximum sum of any contiguous subarray within the list.
-    
     Args:
         nums (List[int]): List of integers
     Returns:
         int: Maximum sum of any contiguous subarray
     """
-    pass
+    if not nums:
+        return 0
+    current_sum = max_sum = nums[0]
+    for num in nums[1:]:
+        current_sum = max(num, current_sum + num)
+        max_sum = max(max_sum, current_sum)
+    return max_sum
 
 
 # Problem 3: Data Structure Implementation
@@ -50,44 +59,58 @@ class Queue:
     Queue implementation using two stacks.
     Operations: push(x), pop(), peek(), empty()
     """
-    
+
     def __init__(self):
         """Initialize your data structure here."""
-        pass
-        
+        self.stack1 = []
+        self.stack2 = []
+
     def push(self, x: int) -> None:
         """Push element x to the back of queue."""
-        pass
-    
+        self.stack1.append(x)
+
     def pop(self) -> int:
         """Remove and return the element from the front of queue."""
-        pass
-        
+        if not self.stack2:
+            while self.stack1:
+                self.stack2.append(self.stack1.pop())
+        return self.stack2.pop()
+
     def peek(self) -> int:
         """Get the front element."""
-        pass
-        
+        if not self.stack2:
+            while self.stack1:
+                self.stack2.append(self.stack1.pop())
+        return self.stack2[-1]
+
     def empty(self) -> bool:
         """Return whether the queue is empty."""
-        pass
+        return len(self.stack1) == 0 and len(self.stack2) == 0
 
 
 # Problem 4: Binary Search Tree Validation
 def is_valid_bst(root: TreeNode) -> bool:
     """
     Determine if a binary tree is a valid binary search tree (BST).
-    
     Args:
         root (TreeNode): Root node of the binary tree
     Returns:
         bool: True if the tree is a valid BST, False otherwise
     """
-    pass
+    def validate(node: TreeNode, min_val: float, max_val: float) -> bool:
+        if not node:
+            return True
+        if node.val <= min_val or node.val >= max_val:
+            return False
+        return (validate(node.left, min_val, node.val) and
+                validate(node.right, node.val, max_val))
+
+    return validate(root, float('-inf'), float('inf'))
 
 
 def run_tests() -> None:
     """Run test cases for all problems"""
-    
+
     print("\n=== Running Tests ===\n")
     start_time = time.time()
     

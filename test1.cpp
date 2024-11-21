@@ -14,6 +14,7 @@
 #include <stack>
 #include <unordered_map>
 #include <limits>
+#include <climits>
 #include <iomanip>
 
 using namespace std;
@@ -25,8 +26,18 @@ using namespace std::chrono;
  * @param s Input string
  * @return Index of first unique character, or -1 if none exists
  */
-int firstUniqueChar(const string& s) {
+int firstUniqueChar(const string &s)
+{
     // Implement your solution here
+    vector<int> freq(26, 0);
+
+    for (char c : s)
+        freq[c - 'a']++;
+    for (int i = 0; i < s.length(); i++)
+    {
+        if (freq[s[i] - 'a'] == 1)
+            return i;
+    }
     return -1;
 }
 
@@ -36,9 +47,18 @@ int firstUniqueChar(const string& s) {
  * @param nums Vector of integers
  * @return Maximum sum of any contiguous subarray
  */
-int maxSubarraySum(const vector<int>& nums) {
+int maxSubarraySum(const vector<int> &nums)
+{
     // Implement your solution here
-    return 0;
+    int maxSoFar = nums[0];
+    int maxEndingHere = nums[0];
+
+    for (int i = 1; i < nums.size(); i++)
+    {
+        maxEndingHere = max(nums[i], maxEndingHere + nums[i]);
+        maxSoFar = max(maxSoFar, maxEndingHere);
+    }
+    return maxSoFar;
 }
 
 // Problem 3: Data Structure Implementation
@@ -46,56 +66,94 @@ int maxSubarraySum(const vector<int>& nums) {
  * Queue implementation using two stacks.
  * Operations: push(x), pop(), peek(), empty()
  */
-class Queue {
+class Queue
+{
 private:
     // Add your member variables here
+    stack<int> s1;
+    stack<int> s2;
+
+    void transfer()
+    {
+        if (s2.empty())
+        {
+            while (!s1.empty())
+            {
+                s2.push(s1.top());
+                s1.pop();
+            }
+        }
+    }
 
 public:
-    Queue() {
-        // Initialize your data structure here
+    Queue() {}
+
+    void push(int x)
+    {
+        s1.push(x);
     }
-    
-    void push(int x) {
-        // Push element x to the back of queue
+
+    int pop()
+    {
+        transfer();
+        if (s2.empty())
+            throw runtime_error("Queue is empty");
+        int val = s2.top();
+        s2.pop();
+        return val;
     }
-    
-    int pop() {
-        // Remove and return the element from front of queue
-        return 0;
-    }
-    
-    int peek() {
+
+    int peek()
+    {
         // Get the front element
-        return 0;
+        transfer();
+        if (s2.empty())
+            throw runtime_error("Queue is empty");
+        return s2.top();
     }
-    
-    bool empty() {
+
+    bool empty()
+    {
         // Return whether the queue is empty
-        return true;
+        return s1.empty() && s2.empty();
     }
 };
 
 // Problem 4: Binary Search Tree Validation
-struct TreeNode {
+struct TreeNode
+{
     int val;
-    TreeNode* left;
-    TreeNode* right;
+    TreeNode *left;
+    TreeNode *right;
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
+
+bool isValidBSTHelper(TreeNode *root, long long min, long long max)
+{
+    if (!root)
+        return true;
+    if (root->val <= min || root->val >= max)
+        return false;
+    return isValidBSTHelper(root->left, min, root->val) &&
+        isValidBSTHelper(root->right, root->val, max);
+}
 
 /**
  * Determine if a binary tree is a valid binary search tree (BST).
  * @param root Root node of the binary tree
  * @return true if the tree is a valid BST, false otherwise
  */
-bool isValidBST(TreeNode* root) {
+bool isValidBST(TreeNode *root)
+{
     // Implement your solution here
-    return false;
+    return isValidBSTHelper(root, LLONG_MIN, LLONG_MAX);
 }
 
 // Helper function to clean up binary tree memory
-void cleanupTree(TreeNode* root) {
-    if (root) {
+void cleanupTree(TreeNode *root)
+{
+    if (root)
+    {
         cleanupTree(root->left);
         cleanupTree(root->right);
         delete root;
@@ -103,7 +161,8 @@ void cleanupTree(TreeNode* root) {
 }
 
 // Test functions
-void testProblem1() {
+void testProblem1()
+{
     cout << "\nTesting Problem 1: First Unique Character" << endl;
     cout << string(40, '-') << endl;
     
