@@ -14,6 +14,7 @@
 #include <string>
 #include <queue>
 #include <unordered_set>
+#include <unordered_map>
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -33,9 +34,22 @@ using namespace std::chrono;
  * @param nums Sorted array of unique integers
  * @return Vector containing all missing numbers
  */
-vector<int> findMissingNumbers(const vector<int>& nums) {
+vector<int> findMissingNumbers(const vector<int> &nums)
+{
     // Implement your solution here
-    return {};
+    vector<int> missing;
+    if (nums.empty()) return missing;
+    int expected = 1;
+    for (int num : nums)
+    {
+        while (expected < num)
+        {
+            missing.push_back(expected);
+            ++expected;
+        }
+        expected = num + 1;
+    }
+    return missing;
 }
 
 // Problem 2: Anagram Groups
@@ -49,9 +63,20 @@ vector<int> findMissingNumbers(const vector<int>& nums) {
  * @param words Array of strings
  * @return Vector of vectors containing grouped anagrams
  */
-vector<vector<string>> groupAnagrams(const vector<string>& words) {
+vector<vector<string>> groupAnagrams(const vector<string> &words)
+{
     // Implement your solution here
-    return {};
+    unordered_map<string, vector<string>> groups;
+    for (const string &word : words)
+    {
+        string sorted = word;
+        sort(sorted.begin(), sorted.end());
+        groups[sorted].push_back(word);
+    }
+    vector<vector<string>> result;
+    for (const auto &pair : groups)
+        result.push_back(pair.second);
+    return result;
 }
 
 // Problem 3: Circular Buffer
@@ -62,33 +87,61 @@ vector<vector<string>> groupAnagrams(const vector<string>& words) {
  * - isFull(): returns true if buffer is full
  * - isEmpty(): returns true if buffer is empty
  */
-class CircularBuffer {
+class CircularBuffer
+{
 private:
     // Add your member variables here
+    vector<int> buffer;
+    size_t head;
+    size_t tail;
+    bool full;
+    const size_t capacity;
 
 public:
-    CircularBuffer(int size) {
-        // Initialize your buffer
-    }
+    CircularBuffer(int size) :
+        buffer(size),
+        head(0),
+        tail(0),
+        full(false),
+        capacity(size) {}
 
-    bool write(int value) {
+    bool write(int value)
+    {
         // Implement write operation
-        return false;
+        if (isFull())
+        {
+            buffer[tail] = value;
+            head = (head + 1) % capacity;
+            tail = (tail + 1) % capacity;
+            return true;
+        }
+        buffer[tail] = value;
+        tail = (tail + 1) % capacity;
+        full = (head == tail);
+        return true;
     }
 
-    int read() {
+    int read()
+    {
         // Implement read operation
-        return 0;
+        if (isEmpty())
+            throw runtime_error("Buffer is empty");
+        int value = buffer[head];
+        head = (head + 1) % capacity;
+        full = false;
+        return value;
     }
 
-    bool isFull() const {
+    bool isFull() const
+    {
         // Return whether buffer is full
-        return false;
+        return full;
     }
 
-    bool isEmpty() const {
+    bool isEmpty() const
+    {
         // Return whether buffer is empty
-        return false;
+        return (!full && (head == tail));
     }
 };
 
@@ -109,21 +162,40 @@ public:
  * Target = 8
  * Output: 3 (Paths: 5->3, 5->2->1, -3->11)
  */
-struct TreeNode {
+struct TreeNode
+{
     int val;
-    TreeNode* left;
-    TreeNode* right;
+    TreeNode *left;
+    TreeNode *right;
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
-int countPathsWithSum(TreeNode* root, int targetSum) {
+int countPathsWithSumHelper(TreeNode *node, int targetSum, int currentSum)
+{
+    if (!node) return 0;
+
+    currentSum += node->val;
+    int paths = (currentSum == targetSum) ? 1 : 0;
+    paths += countPathsWithSumHelper(node->left, targetSum, currentSum);
+    paths += countPathsWithSumHelper(node->right, targetSum, currentSum);
+    return paths;
+}
+
+int countPathsWithSum(TreeNode *root, int targetSum)
+{
     // Implement your solution here
-    return 0;
+    if (!root) return 0;
+    int pathsFromRoot = countPathsWithSumHelper(root, targetSum, 0);
+    int pathsFromLeft = countPathsWithSum(root->left, targetSum);
+    int pathsFromRight = countPathsWithSum(root->right, targetSum);
+    return pathsFromRoot + pathsFromLeft + pathsFromRight;
 }
 
 // Helper function to clean up binary tree memory
-void cleanupTree(TreeNode* root) {
-    if (root) {
+void cleanupTree(TreeNode *root)
+{
+    if (root)
+    {
         cleanupTree(root->left);
         cleanupTree(root->right);
         delete root;
