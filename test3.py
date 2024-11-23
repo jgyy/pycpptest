@@ -243,10 +243,8 @@ def run_tests() -> None:
     for cat in categories:
         total = tracker.get_category_total(cat)
         print(f"{cat}: ${total:.2f}")
-    
     date, amount = tracker.get_highest_spending_day()
     print(f"\nHighest spending day: {date.date()} (${amount:.2f})")
-    
     date_range = tracker.get_transactions_in_range(
         datetime(2024, 1, 1),
         datetime(2024, 1, 2)
@@ -266,7 +264,6 @@ def run_tests() -> None:
     for row in test_grid:
         print(row)
     print(f"Shortest path length: {result}")
-    
     end_time = time.time()
     print(f"\nAll tests completed in {end_time - start_time:.2f} seconds")
 
@@ -280,5 +277,4 @@ if __name__ == "__main__":
     print("3. Focus on both correctness and efficiency")
     print("4. Run tests to verify your solutions")
     print("5. Time limit: 60 minutes\n")
-    
     run_tests()
