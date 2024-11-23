@@ -35,7 +35,12 @@ def word_frequency(text: str, min_length: int = 3) -> Dict[str, int]:
         Dictionary with words as keys and their frequencies as values
     """
     # TODO: Implement this function
-    pass
+    text = re.sub(r'[^\w\s]', '', text.lower())
+    words = [word for word in text.split() if len(word) >= min_length]
+    frequencies = defaultdict(int)
+    for word in words:
+        frequencies[word] += 1
+    return dict(frequencies)
 
 
 # Problem 2: Number Processing
@@ -54,7 +59,12 @@ def digital_root(num: int) -> int:
         ValueError: If num is negative
     """
     # TODO: Implement this function
-    pass
+    if num < 0:
+        raise ValueError('Number must be non-negative')
+    if num < 10:
+        return num
+    digit_sum = sum(int(d) for d in str(num))
+    return digital_root(digit_sum)
 
 
 # Problem 3: List Operations
@@ -63,7 +73,6 @@ def running_average(numbers: List[float], window_size: int) -> List[float]:
     Calculate the running average of numbers using the specified window size.
     For elements where the window extends beyond list bounds, use available numbers.
     Round results to 2 decimal places.
-    
     Example:
     Input: [1, 2, 3, 4, 5], window_size=3
     Output: [1.50, 2.00, 3.00, 4.00, 4.50]
@@ -73,7 +82,6 @@ def running_average(numbers: List[float], window_size: int) -> List[float]:
     - Third avg: (2 + 3 + 4)/3 = 3.00
     - Fourth avg: (3 + 4 + 5)/3 = 4.00
     - Fifth avg: (4 + 5)/2 = 4.50 (only 2 numbers available)
-    
     Args:
         numbers: List of numbers
         window_size: Size of the sliding window
@@ -81,7 +89,14 @@ def running_average(numbers: List[float], window_size: int) -> List[float]:
         List of running averages
     """
     # TODO: Implement this function
-    pass
+    result = []
+    for i in range(len(numbers)):
+        start = max(0, i - window_size + 1)
+        end = i + 1
+        window = numbers[start:end]
+        avg = sum(window) / len(window)
+        result.append(round(avg, 2))
+    return result
 
 
 # Problem 4: Date String Manipulation
@@ -90,11 +105,9 @@ def format_date(date_str: str) -> str:
     Convert between different date formats.
     Input format: Either "DD-MM-YYYY" or "MM/DD/YYYY"
     Output format: "YYYY-MM-DD"
-    
     Example:
     Input: "23-04-2024" -> Output: "2024-04-23"
     Input: "04/23/2024" -> Output: "2024-04-23"
-    
     Args:
         date_str: Date string in either "DD-MM-YYYY" or "MM/DD/YYYY" format
     Returns:
@@ -103,15 +116,22 @@ def format_date(date_str: str) -> str:
         ValueError: If date_str is invalid or in wrong format
     """
     # TODO: Implement this function
-    pass
+    dash_pattern = r'^(\d{2})-(\d{2})-(\d{4})$'
+    slash_pattern = r'^(\d{2})/(\d{2})/(\d{4})$'
+    if re.match(dash_pattern, date_str):
+        day, month, year = re.match(dash_pattern, date_str).groups()
+        return f'{year}-{month}-{day}'
+    elif re.match(slash_pattern, date_str):
+        month, day, year = re.match(slash_pattern, date_str).groups()
+        return f'{year}-{month}-{day}'
+    else:
+        raise ValueError('Invalid date format. Use DD-MM-YYYY or MM/DD/YYYY')
 
 
 def run_tests() -> None:
     """Run test cases for all problems"""
     start_time = time.time()
-    
     print("\n=== Running Tests ===\n")
-    
     # Problem 1 Tests
     print("Testing Problem 1: Word Frequency")
     test_cases = [

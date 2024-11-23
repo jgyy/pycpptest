@@ -190,12 +190,42 @@ class FileSystem:
             return True
         return False
 
+# Problem 4: String Compression
+
+def compressedString(word: str) -> str:
+    """
+    Compress a string by counting consecutive characters (up to 9 occurrences).
+    Each group is represented by the count followed by the character.
+    Args:
+        word: Input string to compress
+    Returns:
+        Compressed string in format: count + character for each group
+    Example:
+        'aabbbcccc' -> '2a3b4c'
+        'wwwwwwwwwww' -> '9w2w' (max 9 characters per group)
+    """
+    # TODO: Implement this method
+    if not word:
+        return ""
+    comp = []
+    i = 0
+    while i < len(word):
+        count = 1
+        while i + 1 < len(word) and word[i] == word[i + 1] and count < 9:
+            count += 1
+            i += 1
+        comp.append(f'{count}{word[i]}')
+        i += 1
+    return "".join(comp)
+
 
 def run_tests():
     """Run comprehensive test cases for all problems"""
     test_peak_elements()
     test_frequent_elements()
     test_filesystem()
+    test_string_compression()
+
 
 def test_peak_elements():
     print("\n=== Testing Peak Elements ===")
@@ -269,6 +299,49 @@ def test_filesystem():
     assert not fs.rm("/nonexistent"), "rm nonexistent path should fail"
 
     print("✓ All FileSystem tests passed\n")
+
+
+def test_string_compression():
+    print("\n=== Testing String Compression ===")
+    test_cases = [
+        # Basic cases
+        ("aabbbcccc", "2a3b4c"),
+        ("a", "1a"),
+        ("aaa", "3a"),
+
+        # Empty string
+        ("", ""),
+
+        # Single character repeated more than 9 times
+        ("aaaaaaaaaa", "9a1a"),  # 10 a's
+        ("aaaaaaaaaaaa", "9a3a"),  # 12 a's
+
+        # Alternating characters
+        ("abababab", "1a1b1a1b1a1b1a1b"),
+
+        # Mixed lengths
+        ("aaabbbccccdddddeeeee", "3a3b4c5d5e"),
+
+        # Case sensitivity
+        ("AAAaaa", "3A3a"),
+
+        # Complex patterns
+        ("aabbccaabbcc", "2a2b2c2a2b2c"),
+        ("abcabcabc", "1a1b1c1a1b1c1a1b1c"),
+
+        # Edge cases with max repetition
+        ("wwwwwwwwww", "9w1w"),  # 10 w's
+        ("zzzzzzzzzzzzzzz", "9z6z")  # 15 z's
+    ]
+
+    for input_str, expected in test_cases:
+        result = compressedString(input_str)
+        print(f"Input: '{input_str}'")
+        print(f"Expected: '{expected}'")
+        print(f"Got: '{result}'")
+        assert result == expected, f"Test failed: expected '{expected}', got '{result}'"
+        print("✓ Test passed\n")
+
 
 if __name__ == "__main__":
     run_tests()

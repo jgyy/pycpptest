@@ -18,6 +18,7 @@
 #include <cassert>
 #include <chrono>
 #include <iomanip>
+#include <sstream>
 
 using namespace std;
 using namespace std::chrono;
@@ -37,43 +38,66 @@ using namespace std::chrono;
  * avg.add(8);   // Returns 7.67 (5, 10, 8)
  * avg.add(15);  // Returns 11.0 (10, 8, 15)
  */
-class RunningAverage {
+class RunningAverage
+{
 private:
     // Add your member variables here
+    deque<int> numbers;
+    int windowSize;
+    double currentSum;
 
 public:
-    RunningAverage(int windowSize) {
-        // Initialize your data structure
-    }
-    
-    double add(int num) {
+    RunningAverage(int windowSize) : windowSize(windowSize), currentSum(0.0) {}
+
+    double add(int num)
+    {
         // Implement the add operation
-        return 0.0;
+        numbers.push_back(num);
+        currentSum += num;
+        if (numbers.size() > windowSize)
+        {
+            currentSum -= numbers.front();
+            numbers.pop_front();
+        }
+        return currentSum / numbers.size();
     }
-    
-    int count() const {
+
+    int count() const
+    {
         // Return current count of numbers
-        return 0;
+        return numbers.size();
     }
 };
 
 // Problem 2: String Compression
 /**
- * Implement a simple string compression algorithm.
- * If the compressed string is not smaller than the original, return the original string.
- * You can assume the string only contains uppercase and lowercase letters (a-z, A-Z).
- * 
- * Example:
- * compress("aabcccccaaa") -> "a2b1c5a3"
- * compress("abcd") -> "abcd"  // Compressed string would be "a1b1c1d1" (not shorter)
- * compress("AABBCC") -> "A2B2C2"
- * 
- * @param str String to compress
- * @return Compressed string if shorter, otherwise original string
+Given a string word, compress it using the following algorithm:
+
+Begin with an empty string comp. While word is not empty, use the following operation:
+Remove a maximum length prefix of word made of a single character c repeating at most 9 times.
+Append the length of the prefix followed by c to comp.
+Return the string comp.
  */
-string compress(const string& str) {
-    // Implement your solution here
-    return "";
+string compressedString(string word)
+{
+    if (word.empty()) return "";
+    string comp = "";
+    int cnt = 1, n = word.size();
+    char ch = word[0];
+    for(int i=1;i<n;i++)
+    {
+        if(word[i] == ch && cnt < 9)cnt++;
+        else
+        {
+            comp.push_back(cnt+'0');
+            comp.push_back(ch);
+            ch = word[i];
+            cnt = 1;
+        }
+    }
+    comp.push_back(cnt+'0');
+    comp.push_back(ch);
+    return comp;
 }
 
 // Problem 3: Balanced Binary Tree
@@ -100,17 +124,88 @@ string compress(const string& str) {
  *   4
  * This tree is not balanced.
  */
-struct TreeNode {
+struct TreeNode
+{
     int val;
-    TreeNode* left;
-    TreeNode* right;
+    TreeNode *left;
+    TreeNode *right;
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
 };
 
-bool isBalanced(TreeNode* root) {
-    // Implement your solution here
-    return false;
+int getHeight(TreeNode *node, bool &isBalanced)
+{
+    if (node == nullptr) return 0;
+    int leftHeight = getHeight(node->left, isBalanced);
+    int rightHeight = getHeight(node->right, isBalanced);
+    if (abs(leftHeight - rightHeight) > 1)
+        isBalanced = false;
+    return max(leftHeight, rightHeight) + 1;
 }
+
+bool isBalanced(TreeNode *root)
+{
+    // Implement your solution here
+    bool isBalanced = true;
+    getHeight(root, isBalanced);
+    return isBalanced;
+}
+
+class NumberConverter
+{
+private:
+    vector<string> ones = {"", "one", "two", "three", "four", "five", "six", "seven",
+        "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+        "sixteen", "seventeen", "eighteen", "nineteen"};
+    vector<string> tens = {"", "", "twenty", "thirty", "forty", "fifty", "sixty",
+        "seventy", "eighty", "ninety"};
+
+    string convertLessThanHundred(int num)
+    {
+        if (num == 0)
+            return "";
+        else if (num < 20)
+            return ones[num];
+        else
+        {
+            string result = tens[num / 10];
+            if (num % 10 > 0)
+                result += " " + ones[num % 10];
+            return result;
+        }
+    }
+
+    string convertHundreds(int num)
+    {
+        string result;
+
+        if (num >= 100)
+        {
+            result += ones[num / 100] + " hundred";
+            num %= 100;
+            if (num > 0) result += " ";
+        }
+        if (num > 0)
+            result += convertLessThanHundred(num);
+        return result;
+    }
+
+public:
+    string convert(int num)
+    {
+        if (num == 0) return "zero";
+        string result;
+        if (num >= 1000)
+        {
+            result += convertHundreds(num / 1000) + " thousand";
+            num %= 1000;
+            if (num > 0)
+                result += " ";
+        }
+        if (num > 0)
+            result += convertHundreds(num);
+        return result;
+    }
+};
 
 // Problem 4: Number to Words
 /**
@@ -126,14 +221,18 @@ bool isBalanced(TreeNode* root) {
  * @param num Integer to convert (0 ≤ num ≤ 999,999)
  * @return String representation in English words
  */
-string numberToWords(int num) {
+string numberToWords(int num)
+{
     // Implement your solution here
-    return "";
+    NumberConverter converter;
+    return converter.convert(num);
 }
 
 // Helper function to clean up binary tree memory
-void cleanupTree(TreeNode* root) {
-    if (root) {
+void cleanupTree(TreeNode* root)
+{
+    if (root)
+    {
         cleanupTree(root->left);
         cleanupTree(root->right);
         delete root;
@@ -144,7 +243,7 @@ void cleanupTree(TreeNode* root) {
 void testRunningAverage() {
     cout << "\nTesting Problem 1: Running Average" << endl;
     cout << string(40, '-') << endl;
-    
+
     try {
         RunningAverage avg(3);
         assert(abs(avg.add(5) - 5.0) < 0.01);
@@ -160,12 +259,27 @@ void testRunningAverage() {
 void testStringCompression() {
     cout << "\nTesting Problem 2: String Compression" << endl;
     cout << string(40, '-') << endl;
-    
     try {
-        assert(compress("aabcccccaaa") == "a2b1c5a3");
-        assert(compress("abcd") == "abcd");
-        assert(compress("AABBCC") == "A2B2C2");
-        cout << "✓ All tests passed!" << endl;
+        // Test Case 1: Basic compression with different characters
+        assert(compressedString("aaa") == "3a");
+        assert(compressedString("ab") == "1a1b");
+        assert(compressedString("abc") == "1a1b1c");
+        // Test Case 2: Multiple consecutive characters
+        assert(compressedString("aabbb") == "2a3b");
+        assert(compressedString("aaabbc") == "3a2b1c");
+        // Test Case 3: Edge case - single character
+        assert(compressedString("a") == "1a");
+        // Test Case 4: Empty string
+        assert(compressedString("") == "");
+        // Test Case 5: Maximum repetition (9)
+        assert(compressedString("aaaaaaaaa") == "9a");  // 9 a's
+        // Test Case 6: Complex pattern with various counts
+        assert(compressedString("aaabbcccccccccc") == "3a2b9c1c");
+        // Test Case 7: Alternating characters
+        assert(compressedString("ababab") == "1a1b1a1b1a1b");
+        // Test Case 8: Multiple maximum sequences
+        assert(compressedString("aaaaaaaaaaaaaaa") == "9a6a");  // 15 a's
+        cout << "✓ All string compression tests passed!" << endl;
     } catch (const exception& e) {
         cout << "✗ Test failed: " << e.what() << endl;
     }
@@ -174,7 +288,6 @@ void testStringCompression() {
 void testBalancedTree() {
     cout << "\nTesting Problem 3: Balanced Binary Tree" << endl;
     cout << string(40, '-') << endl;
-    
     try {
         // Test Case 1: Balanced Tree
         TreeNode* root1 = new TreeNode(3);
@@ -193,7 +306,6 @@ void testBalancedTree() {
         root2->left->left->right = new TreeNode(4);
         assert(isBalanced(root2) == false);
         cleanupTree(root2);
-        
         cout << "✓ All tests passed!" << endl;
     } catch (const exception& e) {
         cout << "✗ Test failed: " << e.what() << endl;
@@ -234,7 +346,8 @@ void runAllTests() {
          << duration.count() / 1000.0 << " seconds" << endl;
 }
 
-int main() {
+int main()
+{
     cout << "\nC++ Coding Interview Questions" << endl;
     cout << string(30, '=') << endl;
     cout << "Time allowed: 60 minutes\n" << endl;
