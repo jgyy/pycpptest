@@ -37,9 +37,46 @@ using namespace std::chrono;
  * @param nums Vector of integers
  * @return Vector containing signs of products
  */
-vector<int> productSigns(const vector<int>& nums) {
+vector<int> productSigns(const vector<int> &nums)
+{
     // TODO: Implement your solution here
-    return {};
+    int n = nums.size();
+    vector<int> result(n);
+    int negCount = 0;
+    int zeroCount = 0;
+    for (int num : nums)
+    {
+        if (num < 0) ++negCount;
+        if (num == 0) ++zeroCount;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (nums[i] == 0)
+        {
+            if (zeroCount > 1)
+                result[i] = 0;
+            else
+            {
+                int currSign = 1;
+                for (int j = 0; j < n; j++)
+                    if (j != i && nums[j] != 0)
+                        if (nums[j] < 0) currSign *= -1;
+                result[i] = currSign;
+            }
+        }
+        else
+        {
+            if (zeroCount > 0)
+            {
+                result[i] = 0;
+                continue;
+            }
+            int currNegCount = negCount;
+            if (nums[i] < 0) currNegCount--;
+            result[i] = (currNegCount % 2 == 0) ? 1 : -1;
+        }
+    }
+    return result;
 }
 
 // Problem 2: Reverse Words
@@ -56,9 +93,40 @@ vector<int> productSigns(const vector<int>& nums) {
  * @param str Input string containing words
  * @return String with reversed word order
  */
-string reverseWords(string str) {
+string reverseWords(string str)
+{
     // TODO: Implement your solution here
-    return "";
+    str.erase(0, str.find_first_not_of(" "));
+    str.erase(str.find_last_not_of(" ") + 1);
+    reverse(str.begin(), str.end());
+    int start = 0;
+    for (int i = 0; i <= str.length(); i++)
+    {
+        if (i == str.length() || str[i] == ' ')
+        {
+            reverse(str.begin() + start, str.begin() + i);
+            start = i + 1;
+        }
+    }
+    string result;
+    bool space = false;
+    for (char c : str)
+    {
+        if (c == ' ')
+        {
+            if (!space)
+            {
+                result += c;
+                space = true;
+            }
+        }
+        else
+        {
+            result += c;
+            space = false;
+        }
+    }
+    return result;
 }
 
 // Problem 3: Last K Elements Average
@@ -74,20 +142,30 @@ string reverseWords(string str) {
  * avg.add(3);    // returns 5.33
  * avg.add(2);    // returns 4.33 (only considers last 3: 8,3,2)
  */
-class KAverage {
+class KAverage
+{
 private:
     // Add your member variables here
+    queue<int> window;
+    int k;
+    double sum;
 
 public:
-    KAverage(int k) {
-        // Initialize your data structure
-    }
-    
-    double add(int val) {
+    KAverage(int k) : k(k), sum(0) {}
+
+    double add(int val)
+    {
         // TODO: Implement add operation
-        return 0.0;
+        window.push(val);
+        sum += val;
+        if (window.size() > k)
+        {
+            sum -= window.front();
+            window.pop();
+        }
+        return sum / window.size();
     }
-    
+
     // Add any helper methods you need
 };
 
@@ -106,13 +184,29 @@ public:
  * @param s String containing only parentheses
  * @return Score of the string
  */
-int scoreParentheses(string s) {
+int scoreParentheses(string s)
+{
     // TODO: Implement your solution here
-    return 0;
+    stack<int> st;
+    st.push(0);
+    for (char c : s)
+    {
+        if (c == '(')
+            st.push(0);
+        else
+        {
+            int curr = st.top();
+            st.pop();
+            int val = (curr == 0) ? 1 : curr * 2;
+            st.top() += val;
+        }
+    }
+    return st.top();
 }
 
 // Test functions
-void testProblem1() {
+void testProblem1()
+{
     cout << "\nTesting Problem 1: Array Product Signs" << endl;
     cout << string(40, '-') << endl;
 

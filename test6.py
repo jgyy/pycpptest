@@ -20,9 +20,8 @@ import time
 # Problem 1: Sequence Pattern
 def generate_sequence(start: int, length: int) -> List[int]:
     """
-    Generate a sequence where each number is the sum of the previous two digits of 
+    Generate a sequence where each number is the sum of the previous two digits of
     the previous number. Start with a given number.
-    
     Example:
     start=5, length=4 should return [5, 5, 10, 1]
     Explanation:
@@ -30,19 +29,27 @@ def generate_sequence(start: int, length: int) -> List[int]:
     - 5 has one digit, so next is 5
     - 5 has one digit, so next is 5+5=10
     - 10 has two digits (1,0), so next is 1+0=1
-    
     Args:
         start: Starting number (positive integer)
         length: Length of sequence to generate
-    
     Returns:
         List containing the generated sequence
-    
     Raises:
         ValueError: If start is negative or length is less than 1
     """
     # TODO: Implement this function
-    pass
+    if start < 0:
+        raise ValueError('Start number must be non-negative')
+    if length < 1:
+        raise ValueError('Length must be at least 1')
+    sequence = [start]
+    for _ in range(length - 1):
+        prev_str = str(sequence[-1])
+        if len(prev_str) == 1:
+            sequence.append(int(prev_str))
+        else:
+            sequence.append(sum(int(digit) for digit in prev_str))
+    return sequence
 
 
 # Problem 2: Card Game Simulator
@@ -54,23 +61,43 @@ def calculate_score(cards: List[str]) -> int:
     - Aces (A) are worth 11 points unless total would exceed 21, then worth 1
     - Pairs of same value (e.g. two 5s) get 2x points
     - Three of a kind gets 3x points
-    
     Example:
     ["A", "A", "K"] -> (11 + 11 + 10) * 2 = 64 (pair of Aces doubles score)
     ["5", "5", "5"] -> (5 + 5 + 5) * 3 = 45 (three of a kind triples score)
     ["2", "K", "A"] -> 2 + 10 + 11 = 23 (no multiplier)
-    
     Args:
         cards: List of card values (2-10, J, Q, K, A)
-        
     Returns:
         Total score for the hand
-        
     Raises:
         ValueError: If invalid card value provided
     """
     # TODO: Implement this function
-    pass
+    valid_cards = set(['2', '3', '4', '5', '6', '7', '8', '9', '10',
+                       'J', 'Q', 'K', 'A'])
+    if not all(card in valid_cards for card in cards):
+        raise ValueError('Invalid card value provided')
+
+    non_aces = [card for card in cards if card != 'A']
+    total = 0
+    for card in cards:
+        if card.isdigit():
+            total += int(card)
+        else:
+            total += 10
+    num_aces = cards.count('A')
+    for _ in range(cards.count('A')):
+        if total + 11 <= 21:
+            total += 11
+        else:
+            total += 1
+    card_counts = {}
+    for card in cards:
+        card_counts[card] = card_counts.get(card, 0) + 1
+    max_count = max(card_counts.values())
+    if max_count > 1:
+        total *= max_count
+    return total
 
 
 # Problem 3: Text Processing
@@ -82,13 +109,10 @@ def format_paragraphs(text: str, width: int) -> List[str]:
     - Preserve paragraph breaks (empty lines)
     - Right-justify the last word if line has one word
     - Left-justify all other lines
-    
     Example:
     text = "The quick brown fox jumps over the lazy dog.
-    
     The five boxing wizards jump quickly."
     width = 20
-    
     Returns:
     [
         "The quick brown fox",
@@ -99,19 +123,69 @@ def format_paragraphs(text: str, width: int) -> List[str]:
         "wizards jump",
         "quickly."
     ]
-    
     Args:
         text: Input text containing paragraphs
         width: Maximum width for each line
-        
     Returns:
         List of formatted lines
-        
     Raises:
         ValueError: If width is less than 1
     """
     # TODO: Implement this function
-    pass
+    if width < 1:
+        raise ValueError('Width must be at least 1')
+    if not text:
+        return []
+
+    def split_long_word(word: str, width: int) -> List[str]:
+        return [word[i:i + width] for i in range(0, len(word), width)]
+
+    paragraphs = []
+    current = []
+    empty_line_count = 0
+    for line in text.split('\n'):
+        if not line.strip():
+            if current:
+                paragraphs.append(' '.join(current))
+                current = []
+            if not empty_line_count:
+                paragraphs.append('')
+            empty_line_count += 1
+        else:
+            empty_line_count = 0
+            current.extend(line.strip().split())
+    if current:
+        paragraphs.append(' '.join(current))
+    result = []
+    for paragraph in paragraphs:
+        if not paragraph:
+            result.append('')
+            continue
+        words = paragraph.split()
+        current_line = []
+        current_length = 0
+        for word in words:
+            if len(word) > width:
+                if current_line:
+                    result.append(' '.join(current_line))
+                result.extend(split_long_word(word, width))
+                current_line = []
+                current_length = 0
+            elif not current_line:
+                current_line = [word]
+                current_length = len(word)
+            elif current_length + len(word) + 1 <= width:
+                current_line.append(word)
+                current_length += len(word) + 1
+            else:
+                result.append(' '.join(current_line))
+                current_line = [word]
+                current_length = len(word)
+        if current_line:
+            result.append(' '.join(current_line))
+    while result and not result[-1]:
+        result.pop()
+    return result
 
 
 # Problem 4: Game Inventory
@@ -124,18 +198,15 @@ class Inventory:
     - List all items
     - Combine two inventories
     - Items have a maximum stack size (default 64)
-    
     Example:
     inv = Inventory()
     inv.add_item("sword", 1)
     inv.add_item("apple", 5)
     inv.remove_item("apple", 2)  # 3 apples remain
     print(inv.get_quantity("apple"))  # prints: 3
-    
     other_inv = Inventory()
     other_inv.add_item("apple", 2)
     inv.combine(other_inv)  # Now has 5 apples
-    
     Methods to implement:
     - add_item(item: str, quantity: int) -> bool
     - remove_item(item: str, quantity: int) -> bool
@@ -144,47 +215,64 @@ class Inventory:
     - get_items() -> Dict[str, int]
     - combine(other: 'Inventory') -> None
     """
-    
+
     def __init__(self, max_stack: int = 64):
         """Initialize empty inventory with max stack size"""
         # TODO: Implement initialization
-        pass
-    
+        self._items = {}
+        self.max_stack = max_stack
+
     def add_item(self, item: str, quantity: int) -> bool:
         """Add quantity of item to inventory, respecting max stack size"""
         # TODO: Implement this method
-        pass
-    
+        if quantity <= 0:
+            return False
+        current = self._items.get(item, 0)
+        if current + quantity > self.max_stack:
+            return False
+        self._items[item] = current + quantity
+        return True
+
     def remove_item(self, item: str, quantity: int) -> bool:
         """Remove quantity of item from inventory if possible"""
         # TODO: Implement this method
-        pass
-    
+        if quantity <= 0 or item not in self._items:
+            return False
+        if self._items[item] < quantity:
+            return False
+        self._items[item] -= quantity
+        if self._items[item] == 0:
+            del self._items[item]
+        return True
+
     def has_item(self, item: str) -> bool:
         """Check if item exists in inventory"""
         # TODO: Implement this method
-        pass
-    
+        return item in self._items
+
     def get_quantity(self, item: str) -> int:
         """Get quantity of item in inventory (0 if doesn't exist)"""
         # TODO: Implement this method
-        pass
-    
+        return self._items.get(item, 0)
+
     def get_items(self) -> Dict[str, int]:
         """Get dictionary of all items and their quantities"""
         # TODO: Implement this method
-        pass
-    
+        return self._items.copy()
+
     def combine(self, other: 'Inventory') -> None:
         """Combine other inventory into this one"""
         # TODO: Implement this method
-        pass
+        for item, quantity in other.get_items().items():
+            current = self._items.get(item, 0)
+            new_quantity = min(current + quantity, self.max_stack)
+            if new_quantity > 0:
+                self._items[item] = new_quantity
 
 
 def run_tests() -> None:
     """Run test cases for all problems"""
     start_time = time.time()
-    
     print("\n=== Testing Problem 1: Sequence Pattern ===")
     sequence_tests = [
         # Format: (start, length, expected_result)
@@ -194,7 +282,6 @@ def run_tests() -> None:
         (1, 3, [1, 1, 2]),
         (0, 4, [0, 0, 0, 0])
     ]
-    
     for start, length, expected in sequence_tests:
         try:
             result = generate_sequence(start, length)
@@ -204,7 +291,6 @@ def run_tests() -> None:
             print(f"{'✓ Passed' if result == expected else '✗ Failed'}")
         except ValueError as e:
             print(f"Raised ValueError: {e}")
-    
     # Test invalid inputs
     try:
         generate_sequence(-1, 5)
