@@ -10,6 +10,11 @@ Instructions:
 
 Good luck!
 */
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <cctype>
+#include <cassert>
 
 // Task 1 (20 points)
 // Implement a function that takes an array of integers and its size as parameters
@@ -19,6 +24,18 @@ Good luck!
 int findSecondLargest(int arr[], int size)
 {
     // Your code here
+    if (size < 2)
+        return -1;
+    int largest = arr[0];
+    int secondLargest = arr[0];
+    for (int i = 1; i < size; i++)
+        if (arr[i] > largest)
+            largest = arr[i];
+    secondLargest = arr[0] == largest ? arr[1] : arr[0];
+    for (int i = 0; i < size; i++)
+        if (arr[i] != largest && arr[i] > secondLargest)
+            secondLargest = arr[i];
+    return secondLargest;
 }
 
 // Task 2 (25 points)
@@ -29,9 +46,21 @@ int findSecondLargest(int arr[], int size)
 // - Contains at least one lowercase letter
 // - Contains at least one number
 // Return true if password is valid, false otherwise
-bool isValidPassword(string password)
+bool isValidPassword(std::string password)
 {
     // Your code here
+    if (password.length() < 8)
+        return false;
+    bool hasUpper = false;
+    bool hasLower = false;
+    bool hasNumber = false;
+    for (char c : password)
+    {
+        if (isupper(c)) hasUpper = true;
+        if (islower(c)) hasLower = true;
+        if (isdigit(c)) hasNumber = true;
+    }
+    return hasUpper && hasLower && hasNumber;
 }
 
 // Task 3 (25 points)
@@ -39,15 +68,17 @@ bool isValidPassword(string password)
 class BankAccount
 {
 private:
-    string accountHolder;
+    std::string accountHolder;
     double balance;
 
 public:
     // Constructor to initialize account with holder name and initial balance
     // If initial balance is negative, set it to 0
-    BankAccount(string holder, double initialBalance)
+    BankAccount(std::string holder, double initialBalance)
     {
         // Your code here
+        accountHolder = holder;
+        balance = (initialBalance < 0) ? 0 : initialBalance;
     }
 
     // Method to deposit money
@@ -55,6 +86,12 @@ public:
     bool deposit(double amount)
     {
         // Your code here
+        if (amount > 0)
+        {
+            balance += amount;
+            return true;
+        }
+        return false;
     }
 
     // Method to withdraw money
@@ -63,18 +100,26 @@ public:
     bool withdraw(double amount)
     {
         // Your code here
+        if (amount > 0 && (balance - amount) >= 0)
+        {
+            balance -= amount;
+            return true;
+        }
+        return false;
     }
 
     // Method to get current balance
     double getBalance()
     {
         // Your code here
+        return balance;
     }
 
     // Method to get account holder name
-    string getAccountHolder()
+    std::string getAccountHolder()
     {
         // Your code here
+        return accountHolder;
     }
 };
 
@@ -82,16 +127,23 @@ public:
 // Implement a function that takes a string and returns true if it's a palindrome
 // Ignore spaces, punctuation, and letter case
 // Example: "A man, a plan, a canal: Panama" → true
-bool isPalindrome(string text)
+bool isPalindrome(std::string text)
 {
     // Your code here
+    std::string cleaned;
+    for (char c : text)
+        if (isalnum(c))
+            cleaned += tolower(c);
+    std::string reversed = cleaned;
+    reverse(reversed.begin(), reversed.end());
+    return cleaned == reversed;
 }
 
 // Test cases
 int main()
 {
     // Test Task 1: findSecondLargest
-    cout << "\nTesting Task 1:\n";
+    std::cout << "\nTesting Task 1:\n";
     int arr1[] = {1, 5, 2, 9, 3};
     int arr2[] = {1};
     int arr3[] = {4, 4, 4, 4};
@@ -99,18 +151,18 @@ int main()
     assert(findSecondLargest(arr1, 5) == 5);
     assert(findSecondLargest(arr2, 1) == -1);
     assert(findSecondLargest(arr3, 4) == 4);
-    cout << "Task 1 tests passed!\n";
+    std::cout << "Task 1 tests passed!\n";
 
     // Test Task 2: isValidPassword
-    cout << "\nTesting Task 2:\n";
+    std::cout << "\nTesting Task 2:\n";
     assert(isValidPassword("Pass123word") == true);
     assert(isValidPassword("password") == false);  // No uppercase or number
     assert(isValidPassword("12345") == false);     // Too short
     assert(isValidPassword("UPPERCASE123") == false); // No lowercase
-    cout << "Task 2 tests passed!\n";
+    std::cout << "Task 2 tests passed!\n";
 
     // Test Task 3: BankAccount
-    cout << "\nTesting Task 3:\n";
+    std::cout << "\nTesting Task 3:\n";
     BankAccount account("John Doe", 1000);
     assert(account.getAccountHolder() == "John Doe");
     assert(account.getBalance() == 1000);
@@ -123,17 +175,17 @@ int main()
 
     BankAccount account2("Jane Doe", -100);  // Should set balance to 0
     assert(account2.getBalance() == 0);
-    cout << "Task 3 tests passed!\n";
+    std::cout << "Task 3 tests passed!\n";
 
     // Test Task 4: isPalindrome
-    cout << "\nTesting Task 4:\n";
+    std::cout << "\nTesting Task 4:\n";
     assert(isPalindrome("A man, a plan, a canal: Panama") == true);
     assert(isPalindrome("race a car") == false);
     assert(isPalindrome("Was it a car or a cat I saw?") == true);
     assert(isPalindrome("") == true);
     assert(isPalindrome("a") == true);
-    cout << "Task 4 tests passed!\n";
+    std::cout << "Task 4 tests passed!\n";
 
-    cout << "\nAll tests passed! Great job!\n";
+    std::cout << "\nAll tests passed! Great job!\n";
     return 0;
 }
