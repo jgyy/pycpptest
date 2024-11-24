@@ -20,45 +20,62 @@ Good luck!
 #include <queue>
 #include <map>
 #include <cassert>
+#include <algorithm>
 
 // Task 1 (25 points)
 // Create a Stack class using a vector as the underlying container
 // Implement push, pop, top, size, and isEmpty operations
 // The stack should store integers
-class Stack {
+class Stack
+{
 private:
     // Define your data members here
+    std::vector<int> data;
 
 public:
-    Stack() {
-        // Your constructor code here
-    }
+    Stack() {}
 
     // Push an element onto the stack
-    void push(int value) {
+    void push(int value)
+    {
         // Your code here
+        data.push_back(value);
     }
 
     // Remove and return the top element
     // Throw std::runtime_error if stack is empty
-    int pop() {
+    int pop()
+    {
         // Your code here
+        if (isEmpty())
+            throw std::runtime_error("Stack is empty");
+        int value = data.back();
+        data.pop_back();
+        return value;
     }
 
     // Return the top element without removing it
     // Throw std::runtime_error if stack is empty
-    int top() const {
+    int top() const
+    {
         // Your code here
+        if (isEmpty())
+            throw std::runtime_error("Stack is empty");
+        return data.back();
     }
 
     // Return current number of elements
-    size_t size() const {
+    size_t size() const
+    {
         // Your code here
+        return data.size();
     }
 
     // Return true if stack is empty
-    bool isEmpty() const {
+    bool isEmpty() const
+    {
         // Your code here
+        return data.empty();
     }
 };
 
@@ -69,45 +86,79 @@ public:
 // Example: "({[]})" → true
 // Example: "([)]" → false
 // Example: "((())" → false
-bool isValidBracketSequence(const std::string& brackets) {
+bool isValidBracketSequence(const std::string &brackets)
+{
     // Your code here
+    std::stack<char> stack;
+    std::map<char, char> bracketPairs = {
+        {')', '('},
+        {']', '['},
+        {'}', '{'}
+    };
+    for (char c : brackets)
+    {
+        if (c == '(' || c == '[' || c == '{')
+            stack.push(c);
+        else if (c == ')' || c == ']' || c == '}')
+        {
+            if (stack.empty() || stack.top() != bracketPairs[c])
+                return false;
+            stack.pop();
+        }
+    }
+    return stack.empty();
 }
 
 // Task 3 (25 points)
 // Create a PhoneBook class that stores phone numbers and names
 // Implement functions to add contacts and search by name prefix
-class PhoneBook {
+class PhoneBook
+{
 private:
     // Define your data members here
+    std::map<std::string, std::string> contacts;
 
 public:
-    PhoneBook() {
-        // Your constructor code here
-    }
+    PhoneBook() {}
 
     // Add or update a contact
     // If contact exists, update their number
     // Return true if new contact added, false if updated
-    bool addContact(const std::string& name, const std::string& phoneNumber) {
+    bool addContact(const std::string &name, const std::string &phoneNumber)
+    {
         // Your code here
+        bool isNew = contacts.find(name) == contacts.end();
+        contacts[name] = phoneNumber;
+        return isNew;
     }
 
     // Remove a contact by name
     // Return true if contact was found and removed
-    bool removeContact(const std::string& name) {
+    bool removeContact(const std::string &name)
+    {
         // Your code here
+        return contacts.erase(name) > 0;
     }
 
     // Find all contacts whose names start with the given prefix
     // Return vector of pairs (name, phone_number)
     // Return empty vector if no matches found
-    std::vector<std::pair<std::string, std::string>> searchByPrefix(const std::string& prefix) {
+    std::vector<std::pair<std::string, std::string>> searchByPrefix(
+                                                            const std::string &prefix)
+    {
         // Your code here
+        std::vector<std::pair<std::string, std::string>> results;
+        for (const auto &contact : contacts)
+            if (contact.first.substr(0, prefix.length()) == prefix)
+                results.push_back(contact);
+        return results;
     }
 
     // Return total number of contacts
-    size_t contactCount() const {
+    size_t contactCount() const
+    {
         // Your code here
+        return contacts.size();
     }
 };
 
@@ -116,8 +167,17 @@ public:
 // Return the length of the longest increasing subsequence
 // Example: [10, 9, 2, 5, 3, 7, 101, 18] → 4 (the subsequence is [2, 5, 7, 101])
 // Example: [0, 1, 0, 3, 2, 3] → 4 (the subsequence is [0, 1, 2, 3])
-int longestIncreasingSubsequence(const std::vector<int>& numbers) {
+int longestIncreasingSubsequence(const std::vector<int> &numbers)
+{
     // Your code here
+    if (numbers.empty())
+        return 0;
+    std::vector<int> dp(numbers.size(), 1);
+    for (size_t i = 1; i < numbers.size(); i++)
+        for (size_t j = 0; j < i; j++)
+            if (numbers[i] > numbers[j])
+                dp[i] = std::max(dp[i], dp[j] + 1);
+    return *std::max_element(dp.begin(), dp.end());
 }
 
 // Test cases
