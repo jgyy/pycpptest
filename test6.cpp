@@ -19,56 +19,84 @@ Good luck!
 #include <queue>
 #include <cassert>
 #include <algorithm>
+#include <unordered_map>
 
 // Task 1 (20 points)
 // Implement a function that rotates a matrix 90 degrees clockwise
 // The matrix is represented as a vector of vectors
 // Example: [[1, 2],      [[3, 1],
 //          [3, 4]]  ->   [4, 2]]
-void rotateMatrix(std::vector<std::vector<int>>& matrix) {
+void rotateMatrix(std::vector<std::vector<int>> &matrix)
+{
     // Your code here
+    if (matrix.empty()) return;
+    int n = matrix.size();
+    for (int i = 0; i < n; i++)
+        for (int j = i; j < n; j++)
+            std::swap(matrix[i][j], matrix[j][i]);
+    for (int i = 0; i < n; i++)
+        std::reverse(matrix[i].begin(), matrix[i].end());
 }
 
 // Task 2 (25 points)
 // Create a class 'WeatherStation' that tracks temperature readings
-class WeatherStation {
+class WeatherStation
+{
 private:
     // Define your data members here
+    std::deque<double> readings;
+    double highest = -1000.0;
+    double lowest = 1000.0;
 
 public:
     // Constructor
-    WeatherStation() {
-        // Your initialization code here
-    }
+    WeatherStation() {}
 
     // Add a temperature reading
-    void addReading(double temperature) {
+    void addReading(double temperature)
+    {
         // Your code here
+        readings.push_back(temperature);
+        highest = std::max(highest, temperature);
+        lowest = std::min(lowest, temperature);
     }
 
     // Get the average of last N readings
     // Return -1 if N is greater than number of readings
-    double getAverageOfLastN(int N) {
+    double getAverageOfLastN(int N)
+    {
         // Your code here
-        return 0.0;
+        if (N > readings.size())
+            return -1;
+        double sum = 0;
+        auto it = readings.rbegin();
+        for (int i = 0; i < N; i++)
+            sum += *it++;
+        return sum / N;
     }
 
     // Get the highest temperature recorded so far
-    double getHighestTemperature() {
+    double getHighestTemperature()
+    {
         // Your code here
-        return 0.0;
+        return highest;
     }
 
     // Get the lowest temperature recorded so far
-    double getLowestTemperature() {
+    double getLowestTemperature()
+    {
         // Your code here
-        return 0.0;
+        return lowest;
     }
 
     // Get count of readings within the specified range (inclusive)
-    int getReadingsInRange(double minTemp, double maxTemp) {
+    int getReadingsInRange(double minTemp, double maxTemp)
+    {
         // Your code here
-        return 0;
+        return std::count_if(readings.begin(), readings.end(),
+            [minTemp, maxTemp](double temp) {
+                return temp >= minTemp && temp <= maxTemp;
+            });
     }
 };
 
@@ -78,74 +106,144 @@ public:
 // Only encode sequences of 2 or more repeated characters
 // Example: "AABBBCCCC" → "A2B3C4"
 // Example: "ABCDE" → "ABCDE" (no compression needed)
-std::string compressString(const std::string& input) {
+std::string compressString(const std::string &input)
+{
     // Your code here
-    return "";
+    if (input.empty())
+        return "";
+    std::string result;
+    char current = input[0];
+    int count = 1;
+    for (size_t i = 1; i <= input.length(); i++)
+    {
+        if (i < input.length() && input[i] == current)
+            count++;
+        else
+        {
+            if (count > 1)
+                result += current + std::to_string(count);
+            else
+                result += current;
+            if (i < input.length())
+            {
+                current = input[i];
+                count = 1;
+            }
+        }
+    }
+    return result;
 }
 
 // Task 4 (30 points)
 // Create a class 'OrderBook' that manages a simple order matching system
-class OrderBook {
-private:
-    // Define your data members here
-
+class OrderBook
+{
 public:
-    enum OrderType {
+    enum OrderType
+    {
         BUY,
         SELL
     };
 
-    struct Order {
+    struct Order
+    {
         int orderId;
         OrderType type;
         double price;
         int quantity;
     };
 
+private:
+    // Define your data members here
+    struct OrderInfo
+    {
+        OrderType type;
+        double price;
+        int quantity;
+    };
+    std::unordered_map<int, OrderInfo> orders;
+    std::map<double, int, std::greater<double>> buyOrders;
+    std::map<double, int> sellOrders;
+
+public:
     // Constructor
-    OrderBook() {
-        // Your initialization code here
-    }
+    OrderBook() {}
 
     // Add a new order to the book
     // Return true if order was added successfully
     // Return false if orderId already exists
-    bool addOrder(int orderId, OrderType type, double price, int quantity) {
+    bool addOrder(int orderId, OrderType type, double price, int quantity)
+    {
         // Your code here
-        return false;
+        if (orders.find(orderId) != orders.end())
+            return false;
+        orders[orderId] = {type, price, quantity};
+        if (type == BUY)
+            buyOrders[price] += quantity;
+        else
+            sellOrders[price] += quantity;
+        return true;
     }
 
     // Cancel an existing order
     // Return true if order was found and cancelled
     // Return false if order doesn't exist
-    bool cancelOrder(int orderId) {
+    bool cancelOrder(int orderId)
+    {
         // Your code here
-        return false;
+        auto it = orders.find(orderId);
+        if (it == orders.end())
+            return false;
+        OrderInfo &info = it->second;
+        if (info.type == BUY)
+        {
+            buyOrders[info.price] -= info.quantity;
+            if (buyOrders[info.price] == 0)
+                buyOrders.erase(info.price);
+        }
+        else
+        {
+            sellOrders[info.price] -= info.quantity;
+            if (sellOrders[info.price] == 0)
+                sellOrders.erase(info.price);
+        }
+        orders.erase(it);
+        return true;
     }
 
     // Get the best (highest) buy price currently in the order book
     // Return -1 if no buy orders exist
-    double getBestBuyPrice() {
+    double getBestBuyPrice()
+    {
         // Your code here
-        return 0.0;
+        if (buyOrders.empty())
+            return -1;
+        return buyOrders.begin()->first;
     }
 
     // Get the best (lowest) sell price currently in the order book
     // Return -1 if no sell orders exist
-    double getBestSellPrice() {
+    double getBestSellPrice()
+    {
         // Your code here
-        return 0.0;
+        if (sellOrders.empty())
+            return -1;
+        return sellOrders.begin()->first;
     }
 
     // Get total quantity of all orders at a specific price
-    int getTotalQuantityAtPrice(double price) {
+    int getTotalQuantityAtPrice(double price)
+    {
         // Your code here
-        return 0;
+        int buyQty = buyOrders.count(price) ? buyOrders[price] : 0;
+        int sellQty = sellOrders.count(price) ? sellOrders[price] : 0;
+        return buyQty + sellQty;
     }
 };
 
 // Test cases
-int main() {
+int main()
+{
     // Test Task 1: Matrix Rotation
     {
         std::vector<std::vector<int>> matrix = {
