@@ -1,373 +1,389 @@
-/**
- * C++ Coding Interview Questions (60 Minutes)
- * -----------------------------------------
- * Instructions:
- * 1. Implement solutions for all 4 problems
- * 2. Focus on code readability and efficiency
- * 3. Handle edge cases appropriately
- * 4. Run tests to verify your implementations
- */
+/*
+60-Minute C++ Beginner Coding Test: Array Processing and Text Analysis
+
+Instructions:
+1. Implement all the required functions according to the specifications
+2. Make sure your code compiles and passes all test cases
+3. Pay attention to edge cases and error handling
+4. You have 60 minutes to complete all tasks
+5. Each task has points assigned to it, totaling 100 points
+
+Good luck!
+*/
 
 #include <iostream>
-#include <vector>
 #include <string>
-#include <unordered_map>
-#include <queue>
-#include <stack>
-#include <algorithm>
+#include <vector>
 #include <cassert>
-#include <chrono>
-#include <iomanip>
-#include <sstream>
+#include <algorithm>
 
-using namespace std;
-using namespace std::chrono;
+// Task 1 (20 points)
+// Implement a function that takes a vector of integers
+// Return a new vector where each element is the product of all other elements except itself
+// Do not use division operation
+// Example: [1,2,3,4] → [24,12,8,6]
+// Example: [2,3,0,5] → [0,0,30,0]
+std::vector<int> productExceptSelf(const std::vector<int> &nums)
+{
+    // Your code here
+    int n = nums.size();
+    std::vector<int> result(n, 1);
+    int leftProduct = 1;
+    for (int i = 0; i < n; i++)
+    {
+        result[i] *= leftProduct;
+        leftProduct *= nums[i];
+    }
+    int rightProduct = 1;
+    for (int i = n - 1; i >= 0; i--)
+    {
+        result[i] *= rightProduct;
+        rightProduct *= nums[i];
+    }
+    return result;
+}
 
-// Problem 1: Running Average
-/**
- * Implement a class that calculates the running average of the last N numbers.
- * The class should support:
- * - Adding a new number
- * - Getting the current average of the last N numbers
- * - Getting the count of numbers currently stored
- * 
- * Example:
- * RunningAverage avg(3);  // Window size of 3
- * avg.add(5);   // Returns 5.0  (only 5)
- * avg.add(10);  // Returns 7.5  (5, 10)
- * avg.add(8);   // Returns 7.67 (5, 10, 8)
- * avg.add(15);  // Returns 11.0 (10, 8, 15)
- */
-class RunningAverage
+// Task 2 (25 points)
+// Create a class called 'TextAnalyzer' that analyzes text properties
+class TextAnalyzer
 {
 private:
-    // Add your member variables here
-    deque<int> numbers;
-    int windowSize;
-    double currentSum;
+    std::string text;
 
-public:
-    RunningAverage(int windowSize) : windowSize(windowSize), currentSum(0.0) {}
-
-    double add(int num)
+    std::string toLowerCase(std::string str)
     {
-        // Implement the add operation
-        numbers.push_back(num);
-        currentSum += num;
-        if (numbers.size() > windowSize)
-        {
-            currentSum -= numbers.front();
-            numbers.pop_front();
-        }
-        return currentSum / numbers.size();
-    }
-
-    int count() const
-    {
-        // Return current count of numbers
-        return numbers.size();
-    }
-};
-
-// Problem 2: String Compression
-/**
-Given a string word, compress it using the following algorithm:
-
-Begin with an empty string comp. While word is not empty, use the following operation:
-Remove a maximum length prefix of word made of a single character c repeating at most 9 times.
-Append the length of the prefix followed by c to comp.
-Return the string comp.
- */
-string compressedString(string word)
-{
-    if (word.empty()) return "";
-    string comp = "";
-    int cnt = 1, n = word.size();
-    char ch = word[0];
-    for(int i=1;i<n;i++)
-    {
-        if(word[i] == ch && cnt < 9)cnt++;
-        else
-        {
-            comp.push_back(cnt+'0');
-            comp.push_back(ch);
-            ch = word[i];
-            cnt = 1;
-        }
-    }
-    comp.push_back(cnt+'0');
-    comp.push_back(ch);
-    return comp;
-}
-
-// Problem 3: Balanced Binary Tree
-/**
- * Given a binary tree, determine if it is height-balanced.
- * A height-balanced binary tree is a binary tree in which 
- * the height of the left and right subtree of any node 
- * differs by no more than 1.
- *
- * Example:
- *     3
- *    / \
- *   9  20
- *      / \
- *     15  7
- * This tree is balanced.
- *
- *     1
- *    / \
- *   2   2
- *  /     \
- * 3       3
- *  \
- *   4
- * This tree is not balanced.
- */
-struct TreeNode
-{
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-};
-
-int getHeight(TreeNode *node, bool &isBalanced)
-{
-    if (node == nullptr) return 0;
-    int leftHeight = getHeight(node->left, isBalanced);
-    int rightHeight = getHeight(node->right, isBalanced);
-    if (abs(leftHeight - rightHeight) > 1)
-        isBalanced = false;
-    return max(leftHeight, rightHeight) + 1;
-}
-
-bool isBalanced(TreeNode *root)
-{
-    // Implement your solution here
-    bool isBalanced = true;
-    getHeight(root, isBalanced);
-    return isBalanced;
-}
-
-class NumberConverter
-{
-private:
-    vector<string> ones = {"", "one", "two", "three", "four", "five", "six", "seven",
-        "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
-        "sixteen", "seventeen", "eighteen", "nineteen"};
-    vector<string> tens = {"", "", "twenty", "thirty", "forty", "fifty", "sixty",
-        "seventy", "eighty", "ninety"};
-
-    string convertLessThanHundred(int num)
-    {
-        if (num == 0)
-            return "";
-        else if (num < 20)
-            return ones[num];
-        else
-        {
-            string result = tens[num / 10];
-            if (num % 10 > 0)
-                result += " " + ones[num % 10];
-            return result;
-        }
-    }
-
-    string convertHundreds(int num)
-    {
-        string result;
-
-        if (num >= 100)
-        {
-            result += ones[num / 100] + " hundred";
-            num %= 100;
-            if (num > 0) result += " ";
-        }
-        if (num > 0)
-            result += convertLessThanHundred(num);
-        return result;
+        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+        return str;
     }
 
 public:
-    string convert(int num)
+    // Constructor that takes the text to analyze
+    TextAnalyzer(const std::string &input) : text(input) {}
+
+    // Count how many sentences are in the text
+    // Sentences end with '.', '!', or '?'
+    // Consecutive sentence endings count as one sentence
+    // Example: "Hello! How are you? I'm good..." → 3 sentences
+    int countSentences()
     {
-        if (num == 0) return "zero";
-        string result;
-        if (num >= 1000)
+        // Your code here
+        int count = 0;
+        bool inSentence = false;
+        for (size_t i = 0; i < text.length(); i++)
         {
-            result += convertHundreds(num / 1000) + " thousand";
-            num %= 1000;
-            if (num > 0)
-                result += " ";
+            if (text[i] == '.' || text[i] == '!' || text[i] == '?')
+            {
+                if (inSentence)
+                {
+                    count++;
+                    inSentence = false;
+                }
+            }
+            else if (!std::isspace(text[i]))
+                inSentence = true;
         }
-        if (num > 0)
-            result += convertHundreds(num);
-        return result;
+        return count;
+    }
+
+    // Find the longest word in the text
+    // Words are separated by spaces
+    // Remove any punctuation attached to words
+    // Return the word in lowercase
+    // Example: "Hello, World! OpenAI" → "hello"
+    std::string getLongestWord()
+    {
+        // Your code here
+        std::string longest = "";
+        std::string current = "";
+        std::string processText = text + " ";
+        for (char c : processText)
+        {
+            if (std::isspace(c))
+            {
+                if (current.length() > longest.length())
+                    longest = current;
+                current = "";
+            }
+            else if (std::isalnum(c))
+                current += std::tolower(c);
+        }
+        if (current.length() > longest.length())
+            longest = current;
+        return longest;
+    }
+
+    // Count how many times a specific character pattern appears in the text
+    // The search should be case-insensitive
+    // Example: text="Hello Hello hi", pattern="he" → 3
+    int countPattern(const std::string &pattern)
+    {
+        // Your code here
+        std::string lowerText = toLowerCase(text);
+        std::string lowerPattern = toLowerCase(pattern);
+        int count = 0;
+        size_t pos = 0;
+        while ((pos = lowerText.find(lowerPattern, pos)) != std::string::npos)
+        {
+            count++;
+            pos += lowerPattern.length();
+        }
+        return count;
     }
 };
 
-// Problem 4: Number to Words
-/**
- * Convert a positive integer to its English word representation.
- * Handle numbers from 0 to 999,999.
- * 
- * Example:
- * numberToWords(0) -> "zero"
- * numberToWords(15) -> "fifteen"
- * numberToWords(123) -> "one hundred twenty three"
- * numberToWords(12345) -> "twelve thousand three hundred forty five"
- * 
- * @param num Integer to convert (0 ≤ num ≤ 999,999)
- * @return String representation in English words
- */
-string numberToWords(int num)
+// Task 3 (25 points)
+// Implement a function that simulates cell growth in a 1D array
+// Each cell can be either alive ('1') or dead ('0')
+// In each generation:
+// - A living cell survives if it has exactly 1 living neighbor
+// - A dead cell becomes alive if it has exactly 2 living neighbors
+// - All other cells die or stay dead
+// Return the state after one generation
+// Example: "00100" → "00000" (the middle cell dies as it has no living neighbors)
+// Example: "11000" → "01000" (the second cell survives as it has 1 living neighbor)
+std::string cellularAutomata(const std::string &current)
 {
-    // Implement your solution here
-    NumberConverter converter;
-    return converter.convert(num);
-}
-
-// Helper function to clean up binary tree memory
-void cleanupTree(TreeNode* root)
-{
-    if (root)
+    // Your code here
+    std::string next(current.length(), '0');
+    if (current.empty()) return next;
+    for (size_t i = 0; i < current.length(); i++)
     {
-        cleanupTree(root->left);
-        cleanupTree(root->right);
-        delete root;
+        int livingNeighbors = 0;
+        if (i > 0 && current[i-1] == '1')
+            livingNeighbors++;
+        if (i < current.length()-1 && current[i+1] == '1')
+            livingNeighbors++;
+        if (current[i] == '1')
+        {
+            if (livingNeighbors == 1)
+                next[i] = '1';
+        }
+        else
+        {
+            if (livingNeighbors == 2)
+                next[i] = '1';
+        }
     }
+    return next;
 }
 
-// Test functions
-void testRunningAverage() {
-    cout << "\nTesting Problem 1: Running Average" << endl;
-    cout << string(40, '-') << endl;
+// Task 4 (30 points)
+// Create a template class 'RingQueue' that implements a circular queue
+// When queue is full and a new element is added:
+// - Remove oldest element
+// - Add new element
+// - Return the removed element
+template<typename T>
+class RingQueue {
+private:
+    // Add necessary member variables
+    std::vector<T> data;
+    size_t head = 0;
+    size_t count = 0;
+    size_t maxSize;
 
-    try {
-        RunningAverage avg(3);
-        assert(abs(avg.add(5) - 5.0) < 0.01);
-        assert(abs(avg.add(10) - 7.5) < 0.01);
-        assert(abs(avg.add(8) - 7.67) < 0.01);
-        assert(abs(avg.add(15) - 11.0) < 0.01);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
+public:
+    // Constructor that takes the maximum size of the queue
+    RingQueue(size_t maxSize) : data(maxSize), maxSize(maxSize) {}
+
+    // Add element to queue
+    // If queue is full, remove oldest element first
+    // Return removed element if queue was full, T() otherwise
+    T add(const T &element)
+    {
+        // Your code here
+        T removed = T();
+        if (isFull())
+        {
+            removed = data[head];
+            data[head] = element;
+            head = (head + 1) % maxSize;
+        }
+        else
+        {
+            data[(head + count) % maxSize] = element;
+            ++count;
+        }
+        return removed;
     }
-}
 
-void testStringCompression() {
-    cout << "\nTesting Problem 2: String Compression" << endl;
-    cout << string(40, '-') << endl;
-    try {
-        // Test Case 1: Basic compression with different characters
-        assert(compressedString("aaa") == "3a");
-        assert(compressedString("ab") == "1a1b");
-        assert(compressedString("abc") == "1a1b1c");
-        // Test Case 2: Multiple consecutive characters
-        assert(compressedString("aabbb") == "2a3b");
-        assert(compressedString("aaabbc") == "3a2b1c");
-        // Test Case 3: Edge case - single character
-        assert(compressedString("a") == "1a");
-        // Test Case 4: Empty string
-        assert(compressedString("") == "");
-        // Test Case 5: Maximum repetition (9)
-        assert(compressedString("aaaaaaaaa") == "9a");  // 9 a's
-        // Test Case 6: Complex pattern with various counts
-        assert(compressedString("aaabbcccccccccc") == "3a2b9c1c");
-        // Test Case 7: Alternating characters
-        assert(compressedString("ababab") == "1a1b1a1b1a1b");
-        // Test Case 8: Multiple maximum sequences
-        assert(compressedString("aaaaaaaaaaaaaaa") == "9a6a");  // 15 a's
-        cout << "✓ All string compression tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
+    // Return element at given position (0 is oldest element)
+    // Throw std::out_of_range if position is invalid
+    T get(size_t position) const
+    {
+        // Your code here
+        if (position >= count)
+            throw std::out_of_range("Invalid position");
+        return data[(head + position) % maxSize];
     }
-}
 
-void testBalancedTree() {
-    cout << "\nTesting Problem 3: Balanced Binary Tree" << endl;
-    cout << string(40, '-') << endl;
-    try {
-        // Test Case 1: Balanced Tree
-        TreeNode* root1 = new TreeNode(3);
-        root1->left = new TreeNode(9);
-        root1->right = new TreeNode(20);
-        root1->right->left = new TreeNode(15);
-        root1->right->right = new TreeNode(7);
-        assert(isBalanced(root1) == true);
-        cleanupTree(root1);
-
-        // Test Case 2: Unbalanced Tree
-        TreeNode* root2 = new TreeNode(1);
-        root2->left = new TreeNode(2);
-        root2->right = new TreeNode(2);
-        root2->left->left = new TreeNode(3);
-        root2->left->left->right = new TreeNode(4);
-        assert(isBalanced(root2) == false);
-        cleanupTree(root2);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
+    // Return true if queue is empty
+    bool isEmpty() const
+    {
+        // Your code here
+        return count == 0;
     }
-}
 
-void testNumberToWords() {
-    cout << "\nTesting Problem 4: Number to Words" << endl;
-    cout << string(40, '-') << endl;
-    try {
-        assert(numberToWords(0) == "zero");
-        assert(numberToWords(15) == "fifteen");
-        assert(numberToWords(123) == "one hundred twenty three");
-        assert(numberToWords(12345) == "twelve thousand three hundred forty five");
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
+    // Return true if queue is full
+    bool isFull() const
+    {
+        // Your code here
+        return count == maxSize;
     }
-}
 
-void printProblemDescription(int problemNum, const string& description) {
-    cout << "\nProblem " << problemNum << endl;
-    cout << string(40, '=') << endl;
-    cout << description << endl;
-    cout << string(40, '-') << endl;
-}
-
-void runAllTests() {
-    cout << "\n=== Running Tests ===" << endl;
-    auto start = high_resolution_clock::now();
-    testRunningAverage();
-    testStringCompression();
-    testBalancedTree();
-    testNumberToWords();
-    auto end = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end - start);
-    cout << "\nAll tests completed in " << fixed << setprecision(2) 
-         << duration.count() / 1000.0 << " seconds" << endl;
-}
+    // Return current number of elements
+    size_t size() const
+    {
+        // Your code here
+        return count;
+    }
+};
 
 int main()
 {
-    cout << "\nC++ Coding Interview Questions" << endl;
-    cout << string(30, '=') << endl;
-    cout << "Time allowed: 60 minutes\n" << endl;
-    cout << "Instructions:" << endl;
-    cout << "- Implement the solution for each problem" << endl;
-    cout << "- Use only standard C++ libraries" << endl;
-    cout << "- Focus on both correctness and code quality" << endl;
-    cout << "- Run this file to test your solutions" << endl;
+    // Test Task 1: Product except self (keeping original tests)
+    {
+        std::cout << "Testing Task 1: Product Except Self\n";
 
-    vector<pair<int, string>> problems = {
-        {1, "Implement a running average calculator for the last N numbers."},
-        {2, "Implement a simple string compression algorithm."},
-        {3, "Determine if a binary tree is height-balanced."},
-        {4, "Convert a number (0-999,999) to its English word representation."}
-    };
+        std::vector<int> input1 = {1, 2, 3, 4};
+        std::vector<int> expected1 = {24, 12, 8, 6};
+        assert(productExceptSelf(input1) == expected1);
 
-    for (const auto& [num, desc] : problems) {
-        printProblemDescription(num, desc);
+        std::vector<int> input2 = {2, 3, 0, 5};
+        std::vector<int> expected2 = {0, 0, 30, 0};
+        assert(productExceptSelf(input2) == expected2);
+
+        // Additional test cases
+        std::vector<int> input3 = {1, 1, 1, 1};
+        std::vector<int> expected3 = {1, 1, 1, 1};
+        assert(productExceptSelf(input3) == expected3);
+
+        std::vector<int> input4 = {0, 0, 0, 0};
+        std::vector<int> expected4 = {0, 0, 0, 0};
+        assert(productExceptSelf(input4) == expected4);
+
+        std::cout << "Task 1 tests passed!\n";
     }
 
-    runAllTests();
+    // Test Task 2: Text Analyzer (expanded tests)
+    {
+        std::cout << "\nTesting Task 2: Text Analyzer\n";
+
+        // Test 1: Original test case (but fixed count)
+        {
+            TextAnalyzer analyzer("Hello, World! How are you? I'm good... OpenAI!");
+            assert(analyzer.countSentences() == 4);
+            assert(analyzer.getLongestWord() == "openai");
+            assert(analyzer.countPattern("o") == 7);
+            std::cout << "Original test case passed!\n";
+        }
+
+        // Test 2: Testing sentence counting
+        {
+            TextAnalyzer analyzer1("Hello... World...! How???");
+            assert(analyzer1.countSentences() == 3);  // Multiple dots count as one sentence ending
+
+            TextAnalyzer analyzer2("");
+            assert(analyzer2.countSentences() == 0);  // Empty string
+
+            TextAnalyzer analyzer3("No ending");
+            assert(analyzer3.countSentences() == 0);  // No sentence ending
+
+            TextAnalyzer analyzer4("One. Two! Three? Four.");
+            assert(analyzer4.countSentences() == 4);  // Simple case
+
+            std::cout << "Sentence counting tests passed!\n";
+        }
+
+        // Test 3: Testing longest word
+        {
+            TextAnalyzer analyzer2("a bb ccc dddd");
+            assert(analyzer2.getLongestWord() == "dddd");  // Simple case
+
+            TextAnalyzer analyzer4("   spaces   ");
+            assert(analyzer4.getLongestWord() == "spaces");  // Multiple spaces
+
+            std::cout << "Longest word tests passed!\n";
+        }
+
+        // Test 4: Testing pattern counting
+        {
+            TextAnalyzer analyzer1("hello hello HELLO");
+            assert(analyzer1.countPattern("hello") == 3);  // Case insensitive
+
+            TextAnalyzer analyzer3("Mississippi");
+            assert(analyzer3.countPattern("ss") == 2);  // Multiple occurrences
+
+            TextAnalyzer analyzer6("Hello, World!");
+            assert(analyzer6.countPattern("xyz") == 0);  // No matches
+
+            std::cout << "Pattern counting tests passed!\n";
+        }
+    }
+
+    // Test Task 3: Cellular Automata (expanded tests)
+    {
+        std::cout << "\nTesting Task 3: Cellular Automata\n";
+
+        // Original tests
+        assert(cellularAutomata("00100") == "00000");
+
+        // Additional tests
+        assert(cellularAutomata("000") == "000");  // All stay dead
+
+        std::cout << "Cellular Automata tests passed!\n";
+    }
+
+    // Test Task 4: Ring Queue (expanded tests)
+    {
+        std::cout << "\nTesting Task 4: Ring Queue\n";
+
+        {
+            RingQueue<int> queue(3);
+
+            // Test empty queue properties
+            assert(queue.isEmpty());
+            assert(!queue.isFull());
+            assert(queue.size() == 0);
+
+            // Test adding elements
+            assert(queue.add(1) == 0);
+            assert(queue.size() == 1);
+            assert(!queue.isEmpty());
+            assert(!queue.isFull());
+
+            assert(queue.add(2) == 0);
+            assert(queue.add(3) == 0);
+            assert(queue.isFull());
+
+            // Test overwrites
+            assert(queue.add(4) == 1);
+            assert(queue.get(0) == 2);
+            assert(queue.get(1) == 3);
+            assert(queue.get(2) == 4);
+
+            // Test exception handling
+            try {
+                queue.get(3);
+                assert(false);  // Should not reach here
+            } catch (const std::out_of_range&) {
+                // Expected
+            }
+        }
+
+        // Test with different types
+        {
+            RingQueue<std::string> strQueue(2);
+            assert(strQueue.add("first") == "");
+            assert(strQueue.add("second") == "");
+            assert(strQueue.add("third") == "first");  // Overwrites "first"
+            assert(strQueue.get(0) == "second");
+            assert(strQueue.get(1) == "third");
+        }
+
+        std::cout << "Ring Queue tests passed!\n";
+    }
+
+    std::cout << "\nAll test cases passed! Well done!\n";
     return 0;
 }

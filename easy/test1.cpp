@@ -1,284 +1,191 @@
-/**
- * C++ Coding Interview Questions (1 Hour)
- * -------------------------------------
- * A set of coding challenges covering fundamental C++ concepts.
- * Author: [Your Name]
- * Date: [Current Date]
- */
+/*
+60-Minute C++ Beginner Coding Test
 
+Instructions:
+1. Implement all the required functions and the class according to the specifications
+2. Make sure your code compiles and passes all test cases
+3. Pay attention to edge cases
+4. You have 60 minutes to complete all tasks
+5. Each task has points assigned to it, totaling 100 points
+
+Good luck!
+*/
 #include <iostream>
-#include <vector>
 #include <string>
+#include <algorithm>
+#include <cctype>
 #include <cassert>
-#include <chrono>
-#include <stack>
-#include <unordered_map>
-#include <limits>
-#include <climits>
-#include <iomanip>
 
-using namespace std;
-using namespace std::chrono;
-
-// Problem 1: String Processing
-/**
- * Find the first non-repeating character in a string and return its index.
- * @param s Input string
- * @return Index of first unique character, or -1 if none exists
- */
-int firstUniqueChar(const string &s)
+// Task 1 (20 points)
+// Implement a function that takes an array of integers and its size as parameters
+// Return the second largest element in the array
+// If array has less than 2 elements, return -1
+// Example: [1, 5, 2, 9, 3] → 5
+int findSecondLargest(int arr[], int size)
 {
-    // Implement your solution here
-    vector<int> freq(26, 0);
-
-    for (char c : s)
-        freq[c - 'a']++;
-    for (int i = 0; i < s.length(); i++)
-    {
-        if (freq[s[i] - 'a'] == 1)
-            return i;
-    }
-    return -1;
+    // Your code here
+    if (size < 2)
+        return -1;
+    int largest = arr[0];
+    int secondLargest = arr[0];
+    for (int i = 1; i < size; i++)
+        if (arr[i] > largest)
+            largest = arr[i];
+    secondLargest = arr[0] == largest ? arr[1] : arr[0];
+    for (int i = 0; i < size; i++)
+        if (arr[i] != largest && arr[i] > secondLargest)
+            secondLargest = arr[i];
+    return secondLargest;
 }
 
-// Problem 2: Array Processing
-/**
- * Find the maximum sum of any contiguous subarray within the vector.
- * @param nums Vector of integers
- * @return Maximum sum of any contiguous subarray
- */
-int maxSubarraySum(const vector<int> &nums)
+// Task 2 (25 points)
+// Implement a function that checks if a string is a valid password
+// Password rules:
+// - At least 8 characters long
+// - Contains at least one uppercase letter
+// - Contains at least one lowercase letter
+// - Contains at least one number
+// Return true if password is valid, false otherwise
+bool isValidPassword(std::string password)
 {
-    // Implement your solution here
-    int maxSoFar = nums[0];
-    int maxEndingHere = nums[0];
-
-    for (int i = 1; i < nums.size(); i++)
+    // Your code here
+    if (password.length() < 8)
+        return false;
+    bool hasUpper = false;
+    bool hasLower = false;
+    bool hasNumber = false;
+    for (char c : password)
     {
-        maxEndingHere = max(nums[i], maxEndingHere + nums[i]);
-        maxSoFar = max(maxSoFar, maxEndingHere);
+        if (isupper(c)) hasUpper = true;
+        if (islower(c)) hasLower = true;
+        if (isdigit(c)) hasNumber = true;
     }
-    return maxSoFar;
+    return hasUpper && hasLower && hasNumber;
 }
 
-// Problem 3: Data Structure Implementation
-/**
- * Queue implementation using two stacks.
- * Operations: push(x), pop(), peek(), empty()
- */
-class Queue
+// Task 3 (25 points)
+// Create a class called 'BankAccount' with the following specifications:
+class BankAccount
 {
 private:
-    // Add your member variables here
-    stack<int> s1;
-    stack<int> s2;
-
-    void transfer()
-    {
-        if (s2.empty())
-        {
-            while (!s1.empty())
-            {
-                s2.push(s1.top());
-                s1.pop();
-            }
-        }
-    }
+    std::string accountHolder;
+    double balance;
 
 public:
-    Queue() {}
-
-    void push(int x)
+    // Constructor to initialize account with holder name and initial balance
+    // If initial balance is negative, set it to 0
+    BankAccount(std::string holder, double initialBalance)
     {
-        s1.push(x);
+        // Your code here
+        accountHolder = holder;
+        balance = (initialBalance < 0) ? 0 : initialBalance;
     }
 
-    int pop()
+    // Method to deposit money
+    // Return true if deposit is positive, false otherwise
+    bool deposit(double amount)
     {
-        transfer();
-        if (s2.empty())
-            throw runtime_error("Queue is empty");
-        int val = s2.top();
-        s2.pop();
-        return val;
-    }
-
-    int peek()
-    {
-        // Get the front element
-        transfer();
-        if (s2.empty())
-            throw runtime_error("Queue is empty");
-        return s2.top();
-    }
-
-    bool empty()
-    {
-        // Return whether the queue is empty
-        return s1.empty() && s2.empty();
-    }
-};
-
-// Problem 4: Binary Search Tree Validation
-struct TreeNode
-{
-    int val;
-    TreeNode *left;
-    TreeNode *right;
-    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-};
-
-bool isValidBSTHelper(TreeNode *root, long long min, long long max)
-{
-    if (!root)
-        return true;
-    if (root->val <= min || root->val >= max)
+        // Your code here
+        if (amount > 0)
+        {
+            balance += amount;
+            return true;
+        }
         return false;
-    return isValidBSTHelper(root->left, min, root->val) &&
-        isValidBSTHelper(root->right, root->val, max);
-}
+    }
 
-/**
- * Determine if a binary tree is a valid binary search tree (BST).
- * @param root Root node of the binary tree
- * @return true if the tree is a valid BST, false otherwise
- */
-bool isValidBST(TreeNode *root)
-{
-    // Implement your solution here
-    return isValidBSTHelper(root, LLONG_MIN, LLONG_MAX);
-}
-
-// Helper function to clean up binary tree memory
-void cleanupTree(TreeNode *root)
-{
-    if (root)
+    // Method to withdraw money
+    // Return true if withdrawal is possible and balance would stay >= 0
+    // Return false otherwise
+    bool withdraw(double amount)
     {
-        cleanupTree(root->left);
-        cleanupTree(root->right);
-        delete root;
+        // Your code here
+        if (amount > 0 && (balance - amount) >= 0)
+        {
+            balance -= amount;
+            return true;
+        }
+        return false;
     }
-}
 
-// Test functions
-void testProblem1()
+    // Method to get current balance
+    double getBalance()
+    {
+        // Your code here
+        return balance;
+    }
+
+    // Method to get account holder name
+    std::string getAccountHolder()
+    {
+        // Your code here
+        return accountHolder;
+    }
+};
+
+// Task 4 (30 points)
+// Implement a function that takes a string and returns true if it's a palindrome
+// Ignore spaces, punctuation, and letter case
+// Example: "A man, a plan, a canal: Panama" → true
+bool isPalindrome(std::string text)
 {
-    cout << "\nTesting Problem 1: First Unique Character" << endl;
-    cout << string(40, '-') << endl;
-    
-    try {
-        assert(firstUniqueChar("leetcode") == 0);
-        assert(firstUniqueChar("loveleetcode") == 2);
-        assert(firstUniqueChar("aabb") == -1);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
+    // Your code here
+    std::string cleaned;
+    for (char c : text)
+        if (isalnum(c))
+            cleaned += tolower(c);
+    std::string reversed = cleaned;
+    reverse(reversed.begin(), reversed.end());
+    return cleaned == reversed;
 }
 
-void testProblem2() {
-    cout << "\nTesting Problem 2: Maximum Subarray Sum" << endl;
-    cout << string(40, '-') << endl;
-    
-    try {
-        assert(maxSubarraySum({-2, 1, -3, 4, -1, 2, 1, -5, 4}) == 6);
-        assert(maxSubarraySum({1}) == 1);
-        assert(maxSubarraySum({-1, -2, -3}) == -1);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
+// Test cases
+int main()
+{
+    // Test Task 1: findSecondLargest
+    std::cout << "\nTesting Task 1:\n";
+    int arr1[] = {1, 5, 2, 9, 3};
+    int arr2[] = {1};
+    int arr3[] = {4, 4, 4, 4};
 
-void testProblem3() {
-    cout << "\nTesting Problem 3: Queue Implementation" << endl;
-    cout << string(40, '-') << endl;
-    
-    try {
-        Queue queue;
-        queue.push(1);
-        queue.push(2);
-        assert(queue.peek() == 1);
-        assert(queue.pop() == 1);
-        assert(queue.empty() == false);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
+    assert(findSecondLargest(arr1, 5) == 5);
+    assert(findSecondLargest(arr2, 1) == -1);
+    assert(findSecondLargest(arr3, 4) == 4);
+    std::cout << "Task 1 tests passed!\n";
 
-void testProblem4() {
-    cout << "\nTesting Problem 4: Valid BST" << endl;
-    cout << string(40, '-') << endl;
-    
-    try {
-        // Test Case 1: Valid BST
-        //     2
-        //    / \
-        //   1   3
-        TreeNode* node1 = new TreeNode(2);
-        node1->left = new TreeNode(1);
-        node1->right = new TreeNode(3);
-        assert(isValidBST(node1) == true);
-        cleanupTree(node1);
+    // Test Task 2: isValidPassword
+    std::cout << "\nTesting Task 2:\n";
+    assert(isValidPassword("Pass123word") == true);
+    assert(isValidPassword("password") == false);  // No uppercase or number
+    assert(isValidPassword("12345") == false);     // Too short
+    assert(isValidPassword("UPPERCASE123") == false); // No lowercase
+    std::cout << "Task 2 tests passed!\n";
 
-        // Test Case 2: Invalid BST
-        //     5
-        //    / \
-        //   1   4
-        //      / \
-        //     3   6
-        TreeNode* node2 = new TreeNode(5);
-        node2->left = new TreeNode(1);
-        node2->right = new TreeNode(4);
-        node2->right->left = new TreeNode(3);
-        node2->right->right = new TreeNode(6);
-        assert(isValidBST(node2) == false);
-        cleanupTree(node2);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
+    // Test Task 3: BankAccount
+    std::cout << "\nTesting Task 3:\n";
+    BankAccount account("John Doe", 1000);
+    assert(account.getAccountHolder() == "John Doe");
+    assert(account.getBalance() == 1000);
+    assert(account.deposit(500) == true);
+    assert(account.getBalance() == 1500);
+    assert(account.deposit(-100) == false);
+    assert(account.withdraw(2000) == false);
+    assert(account.withdraw(500) == true);
+    assert(account.getBalance() == 1000);
 
-void printProblemDescription(int problemNum, const string& description) {
-    cout << "\nProblem " << problemNum << endl;
-    cout << string(40, '=') << endl;
-    cout << description << endl;
-    cout << string(40, '-') << endl;
-}
+    BankAccount account2("Jane Doe", -100);  // Should set balance to 0
+    assert(account2.getBalance() == 0);
+    std::cout << "Task 3 tests passed!\n";
 
-void runAllTests() {
-    cout << "\n=== Running Tests ===" << endl;
-    auto start = high_resolution_clock::now();
-    testProblem1();
-    testProblem2();
-    testProblem3();
-    testProblem4();
-    auto end = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end - start);
-    cout << "\nAll tests completed in " << fixed << setprecision(2) 
-         << duration.count() / 1000.0 << " seconds" << endl;
-}
+    // Test Task 4: isPalindrome
+    std::cout << "\nTesting Task 4:\n";
+    assert(isPalindrome("A man, a plan, a canal: Panama") == true);
+    assert(isPalindrome("race a car") == false);
+    assert(isPalindrome("Was it a car or a cat I saw?") == true);
+    assert(isPalindrome("") == true);
+    assert(isPalindrome("a") == true);
+    std::cout << "Task 4 tests passed!\n";
 
-int main() {
-    cout << "\nC++ Coding Interview Questions" << endl;
-    cout << string(30, '=') << endl;
-    cout << "Time allowed: 1 hour\n" << endl;
-    cout << "Instructions:" << endl;
-    cout << "- Implement the solution for each problem" << endl;
-    cout << "- Use only standard C++ libraries" << endl;
-    cout << "- Focus on both correctness and code quality" << endl;
-    cout << "- Compile and run this file to test your solutions" << endl;
-    vector<pair<int, string>> problems = {
-        {1, "Find the first non-repeating character in a string and return its index."},
-        {2, "Find the maximum sum of any contiguous subarray within the vector."},
-        {3, "Implement a Queue using two stacks with push, pop, peek, and empty operations."},
-        {4, "Determine if a binary tree is a valid binary search tree (BST)."}
-    };
-    for (const auto& [num, desc] : problems) {
-        printProblemDescription(num, desc);
-    }
-    runAllTests();
+    std::cout << "\nAll tests passed! Great job!\n";
     return 0;
 }

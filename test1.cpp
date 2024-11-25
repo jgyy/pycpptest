@@ -1,191 +1,270 @@
-/*
-60-Minute C++ Beginner Coding Test
+// C++ Coding Test (60 minutes)
+// Each question includes test cases and sample inputs
+// Implement the required functionality for each question
 
-Instructions:
-1. Implement all the required functions and the class according to the specifications
-2. Make sure your code compiles and passes all test cases
-3. Pay attention to edge cases
-4. You have 60 minutes to complete all tasks
-5. Each task has points assigned to it, totaling 100 points
-
-Good luck!
-*/
 #include <iostream>
 #include <string>
+#include <vector>
+#include <map>
 #include <algorithm>
-#include <cctype>
-#include <cassert>
 
-// Task 1 (20 points)
-// Implement a function that takes an array of integers and its size as parameters
-// Return the second largest element in the array
-// If array has less than 2 elements, return -1
-// Example: [1, 5, 2, 9, 3] → 5
-int findSecondLargest(int arr[], int size)
+// Question 1: String Manipulation (15 points)
+// Write a function that takes a string and returns the number of unique characters
+// Example: "hello" -> 4 unique characters (h,e,l,o)
+int countUniqueChars(const std::string& input)
 {
-    // Your code here
-    if (size < 2)
-        return -1;
-    int largest = arr[0];
-    int secondLargest = arr[0];
-    for (int i = 1; i < size; i++)
-        if (arr[i] > largest)
-            largest = arr[i];
-    secondLargest = arr[0] == largest ? arr[1] : arr[0];
-    for (int i = 0; i < size; i++)
-        if (arr[i] != largest && arr[i] > secondLargest)
-            secondLargest = arr[i];
-    return secondLargest;
+    // Your implementation here
+    if (input.length() == 0)
+        return 0;
+    std::unordered_set<char> unique(input.being(), input.end());
+    return unique.size();
 }
 
-// Task 2 (25 points)
-// Implement a function that checks if a string is a valid password
-// Password rules:
-// - At least 8 characters long
-// - Contains at least one uppercase letter
-// - Contains at least one lowercase letter
-// - Contains at least one number
-// Return true if password is valid, false otherwise
-bool isValidPassword(std::string password)
+// Test cases for Question 1
+void testCountUniqueChars()
 {
-    // Your code here
-    if (password.length() < 8)
-        return false;
-    bool hasUpper = false;
-    bool hasLower = false;
-    bool hasNumber = false;
-    for (char c : password)
+    assert(countUniqueChars("hello") == 4);
+    assert(countUniqueChars("programming") == 7);
+    assert(countUniqueChars("aaa") == 1);
+    assert(countUniqueChars("") == 0);
+}
+
+// Question 2: Vector Operations (20 points)
+// Create functions to:
+// 1. Remove all duplicates from a vector of integers
+// 2. Find the second largest element
+// 3. Calculate the sum of even numbers
+std::vector<int> removeDuplicates(std::vector<int>& nums)
+{
+    // Your implementation here
+    if (nums.size() <= 1)
+        return nums;
+    std::set<int> unique(nums.begin(), nums.end());
+    std::vector<int> result(unique.begin(), unique.end());
+    return result;
+}
+
+int findSecondLargest(const std::vector<int>& nums)
+{
+    // Your implementation here
+    if (nums.size() <= 1)
+        return 0;
+    std::vector<int> temp = nums;
+    std::set<int> unique(temp.begin(), temp.end());
+    std::sort(unique.rbegin(), unique.rend());
+    if (unique.size( <= 1))
+        return 0;
+    return (temp[1]);
+}
+
+int sumEvenNumbers(const std::vector<int>& nums)
+{
+    // Your implementation here
+    if (nums.size() == 0)
+        return 0;
+    int sum = 0;
+    for (int x : nums)
     {
-        if (isupper(c)) hasUpper = true;
-        if (islower(c)) hasLower = true;
-        if (isdigit(c)) hasNumber = true;
+        if (x % 2 == 0)
+            sum += x;
     }
-    return hasUpper && hasLower && hasNumber;
+    return sum;
 }
 
-// Task 3 (25 points)
-// Create a class called 'BankAccount' with the following specifications:
-class BankAccount
+// Test cases for Question 2
+void testVectorOperations()
+{
+    std::vector<int> test1 = {1, 2, 2, 3, 3, 4};
+    std::vector<int> test2 = {5, 2, 8, 1, 9};
+    std::vector<int> test3 = {2, 4, 6, 7, 8};
+
+    // Test removeDuplicates
+    assert(removeDuplicates(test1) == std::vector<int>{1, 2, 3, 4});
+
+    // Test findSecondLargest
+    assert(findSecondLargest(test2) == 8);
+
+    // Test sumEvenNumbers
+    assert(sumEvenNumbers(test3) == 20);
+}
+
+// Question 3: Student Grade Calculator (25 points)
+class Student
 {
 private:
-    std::string accountHolder;
-    double balance;
+    std::string name;
+    std::vector<int> grades;
 
 public:
-    // Constructor to initialize account with holder name and initial balance
-    // If initial balance is negative, set it to 0
-    BankAccount(std::string holder, double initialBalance)
-    {
-        // Your code here
-        accountHolder = holder;
-        balance = (initialBalance < 0) ? 0 : initialBalance;
-    }
+    Student(const std::string& studentName) : name(studentName) {}
 
-    // Method to deposit money
-    // Return true if deposit is positive, false otherwise
-    bool deposit(double amount)
+    // Implement these methods:
+    // 1. Add a grade (0-100)
+    void addGrade(int grade)
     {
-        // Your code here
-        if (amount > 0)
+        grades.push_back(grade);
+    }
+    // 2. Calculate average grade
+    double getAverage()
+    {
+        if (grades.empty())
+            return 0.0;
+        int i = 0;
+        int total = 0;
+        for (; i < grades.size(); i++)
         {
-            balance += amount;
-            return true;
+            total += grades[i];
         }
-        return false;
+        double average = total / (i + 1);
+        return average;
     }
-
-    // Method to withdraw money
-    // Return true if withdrawal is possible and balance would stay >= 0
-    // Return false otherwise
-    bool withdraw(double amount)
+    // 3. Get highest and lowest grades
+    int getHighestGrade()
     {
-        // Your code here
-        if (amount > 0 && (balance - amount) >= 0)
+        if (grades.empty())
+            return 0;
+        int result = 0;
+        for (int i : grades)
         {
-            balance -= amount;
-            return true;
+            if (i > result)
+                result = i;
         }
-        return false;
+        return result;
     }
 
-    // Method to get current balance
-    double getBalance()
+    int getLowestGrade()
     {
-        // Your code here
-        return balance;
+        if (grades.empty())
+            return 0;
+        int result = 100;
+        for (int i : grades)
+        {
+            if (i < result)
+                result = i;
+        }
+        return result;
     }
-
-    // Method to get account holder name
-    std::string getAccountHolder()
+    // 4. Get number of passing grades (>= 60)
+    int getPassingGrades()
     {
-        // Your code here
-        return accountHolder;
+        if (grades.empty())
+            return 0;
+        int count = 0;
+        for (int i : grades)
+        {
+            if (i >= 60)
+                count++;
+        }
+        return count;
     }
 };
 
-// Task 4 (30 points)
-// Implement a function that takes a string and returns true if it's a palindrome
-// Ignore spaces, punctuation, and letter case
-// Example: "A man, a plan, a canal: Panama" → true
-bool isPalindrome(std::string text)
+// Test cases for Question 3
+void testStudentGrades()
 {
-    // Your code here
-    std::string cleaned;
-    for (char c : text)
-        if (isalnum(c))
-            cleaned += tolower(c);
-    std::string reversed = cleaned;
-    reverse(reversed.begin(), reversed.end());
-    return cleaned == reversed;
+    Student student("John");
+    student.addGrade(85);
+    student.addGrade(92);
+    student.addGrade(78);
+    student.addGrade(95);
+
+    assert(student.getAverage() == 87.5);
+    assert(student.getHighestGrade() == 95);
+    assert(student.getLowestGrade() == 78);
+    assert(student.getPassingGrades() == 4);
 }
 
-// Test cases
+// Question 4: Text Analyzer (40 points)
+// Create a class that analyzes text and provides:
+// 1. Word frequency count
+// 2. Most common word
+// 3. Number of sentences
+// 4. Average words per sentence
+class TextAnalyzer
+{
+private:
+    std::string sentences;
+    std::map<std::string, int> wordCount;
+    std::map<std::string, int> sentenceCount;
+    std::map<std::string, int> wordSentenceCount;
+
+    std::string lowerCase(std::string s)
+    {
+        std::string low = "";
+        for (char c : s)
+        {
+            low += tolower(c);
+        }
+        return low;
+    }
+public:
+    // Your implementation here
+    TextAnalyzer() : sentences("") {}
+
+    void setText(std::string text)
+    {
+        std::stringstream words(lowerCase(text));
+        std::string word = "";
+        sentences = text;
+
+        while (words >> word)
+        {
+            wordCount[word]++;
+        }
+    }
+
+    int getWordCount(std::string word)
+    {
+        if (sentences.length() == 0)
+            return 0;
+        int count = 0;
+        return wordCount[word];
+    }
+
+    std::string getMostCommonWord()
+    {
+        if (sentences.length() == 0)
+            return 0;
+        std::string word = "";
+        return word;
+    }
+
+    int getSentenceCount()
+    {
+        if (sentences.length() == 0)
+            return 0;
+        return sentenceCount.size();
+    }
+
+    double getAverageWordsPerSentence()
+    {
+        if (sentences.length() == 0)
+            return 0.0;
+        double average = 0.0;
+        return average;
+    }
+};
+
+// Test cases for Question 4
+void testTextAnalyzer()
+{
+    TextAnalyzer analyzer;
+    analyzer.setText("Hello world. This is a test. Hello again!");
+
+    assert(analyzer.getWordCount("hello") == 2);
+    assert(analyzer.getMostCommonWord() == "hello");
+    assert(analyzer.getSentenceCount() == 3);
+    assert(analyzer.getAverageWordsPerSentence() == 2.33);
+}
+
 int main()
 {
-    // Test Task 1: findSecondLargest
-    std::cout << "\nTesting Task 1:\n";
-    int arr1[] = {1, 5, 2, 9, 3};
-    int arr2[] = {1};
-    int arr3[] = {4, 4, 4, 4};
+    // Run all test cases
+    testCountUniqueChars();
+    testVectorOperations();
+    testStudentGrades();
+    testTextAnalyzer();
 
-    assert(findSecondLargest(arr1, 5) == 5);
-    assert(findSecondLargest(arr2, 1) == -1);
-    assert(findSecondLargest(arr3, 4) == 4);
-    std::cout << "Task 1 tests passed!\n";
-
-    // Test Task 2: isValidPassword
-    std::cout << "\nTesting Task 2:\n";
-    assert(isValidPassword("Pass123word") == true);
-    assert(isValidPassword("password") == false);  // No uppercase or number
-    assert(isValidPassword("12345") == false);     // Too short
-    assert(isValidPassword("UPPERCASE123") == false); // No lowercase
-    std::cout << "Task 2 tests passed!\n";
-
-    // Test Task 3: BankAccount
-    std::cout << "\nTesting Task 3:\n";
-    BankAccount account("John Doe", 1000);
-    assert(account.getAccountHolder() == "John Doe");
-    assert(account.getBalance() == 1000);
-    assert(account.deposit(500) == true);
-    assert(account.getBalance() == 1500);
-    assert(account.deposit(-100) == false);
-    assert(account.withdraw(2000) == false);
-    assert(account.withdraw(500) == true);
-    assert(account.getBalance() == 1000);
-
-    BankAccount account2("Jane Doe", -100);  // Should set balance to 0
-    assert(account2.getBalance() == 0);
-    std::cout << "Task 3 tests passed!\n";
-
-    // Test Task 4: isPalindrome
-    std::cout << "\nTesting Task 4:\n";
-    assert(isPalindrome("A man, a plan, a canal: Panama") == true);
-    assert(isPalindrome("race a car") == false);
-    assert(isPalindrome("Was it a car or a cat I saw?") == true);
-    assert(isPalindrome("") == true);
-    assert(isPalindrome("a") == true);
-    std::cout << "Task 4 tests passed!\n";
-
-    std::cout << "\nAll tests passed! Great job!\n";
+    std::cout << "All tests passed!" << std::endl;
     return 0;
 }

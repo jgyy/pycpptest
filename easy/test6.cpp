@@ -1,332 +1,315 @@
-/**
- * C++ Coding Interview Questions (60 Minutes)
- * -----------------------------------------
- * Instructions:
- * 1. Implement solutions for all 4 problems
- * 2. Focus on code readability and efficiency
- * 3. All required headers are already included
- * 4. Run tests to verify your solutions
- */
+/*
+60-Minute C++ Beginner Coding Test: Algorithm Design and Problem Solving
+
+Instructions:
+1. Implement all the required functions according to the specifications
+2. Make sure your code compiles and passes all test cases
+3. Pay attention to edge cases and code efficiency
+4. You have 60 minutes to complete all tasks
+5. Each task has points assigned to it, totaling 100 points
+
+Good luck!
+*/
 
 #include <iostream>
-#include <vector>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
+#include <vector>
+#include <map>
+#include <set>
 #include <queue>
-#include <stack>
-#include <algorithm>
 #include <cassert>
-#include <chrono>
-#include <iomanip>
+#include <algorithm>
+#include <unordered_map>
 
-using namespace std;
-using namespace std::chrono;
-
-// Problem 1: Array Product Signs
-/**
- * Given an array of integers, return a new array where each element is:
- * 1 if the product of all numbers except the current one is positive
- * -1 if the product of all numbers except the current one is negative
- * 0 if the product of all numbers except the current one is zero
- * 
- * Example:
- * Input: [1, -2, -3, 4]
- * Output: [24, -12, 8, -6]  ->  [1, -1, -1, 1]
- * 
- * @param nums Vector of integers
- * @return Vector containing signs of products
- */
-vector<int> productSigns(const vector<int> &nums)
+// Task 1 (20 points)
+// Implement a function that rotates a matrix 90 degrees clockwise
+// The matrix is represented as a vector of vectors
+// Example: [[1, 2],      [[3, 1],
+//          [3, 4]]  ->   [4, 2]]
+void rotateMatrix(std::vector<std::vector<int>> &matrix)
 {
-    // TODO: Implement your solution here
-    int n = nums.size();
-    vector<int> result(n);
-    int negCount = 0;
-    int zeroCount = 0;
-    for (int num : nums)
-    {
-        if (num < 0) ++negCount;
-        if (num == 0) ++zeroCount;
-    }
+    // Your code here
+    if (matrix.empty()) return;
+    int n = matrix.size();
     for (int i = 0; i < n; i++)
-    {
-        if (nums[i] == 0)
-        {
-            if (zeroCount > 1)
-                result[i] = 0;
-            else
-            {
-                int currSign = 1;
-                for (int j = 0; j < n; j++)
-                    if (j != i && nums[j] != 0)
-                        if (nums[j] < 0) currSign *= -1;
-                result[i] = currSign;
-            }
-        }
-        else
-        {
-            if (zeroCount > 0)
-            {
-                result[i] = 0;
-                continue;
-            }
-            int currNegCount = negCount;
-            if (nums[i] < 0) currNegCount--;
-            result[i] = (currNegCount % 2 == 0) ? 1 : -1;
-        }
-    }
-    return result;
+        for (int j = i; j < n; j++)
+            std::swap(matrix[i][j], matrix[j][i]);
+    for (int i = 0; i < n; i++)
+        std::reverse(matrix[i].begin(), matrix[i].end());
 }
 
-// Problem 2: Reverse Words
-/**
- * Given a string containing words separated by spaces,
- * reverse the order of words while preserving the order of characters within each word.
- * Multiple spaces between words should be reduced to a single space.
- * Leading and trailing spaces should be removed.
- * 
- * Example:
- * Input: "  hello   world  python  "
- * Output: "python world hello"
- * 
- * @param str Input string containing words
- * @return String with reversed word order
- */
-string reverseWords(string str)
-{
-    // TODO: Implement your solution here
-    str.erase(0, str.find_first_not_of(" "));
-    str.erase(str.find_last_not_of(" ") + 1);
-    reverse(str.begin(), str.end());
-    int start = 0;
-    for (int i = 0; i <= str.length(); i++)
-    {
-        if (i == str.length() || str[i] == ' ')
-        {
-            reverse(str.begin() + start, str.begin() + i);
-            start = i + 1;
-        }
-    }
-    string result;
-    bool space = false;
-    for (char c : str)
-    {
-        if (c == ' ')
-        {
-            if (!space)
-            {
-                result += c;
-                space = true;
-            }
-        }
-        else
-        {
-            result += c;
-            space = false;
-        }
-    }
-    return result;
-}
-
-// Problem 3: Last K Elements Average
-/**
- * Implement a class that maintains a stream of integers and can calculate
- * the average of the last K elements added.
- * If fewer than K elements have been added, calculate average of all elements.
- * 
- * Example:
- * KAverage avg(3);
- * avg.add(5);    // returns 5.0
- * avg.add(8);    // returns 6.5
- * avg.add(3);    // returns 5.33
- * avg.add(2);    // returns 4.33 (only considers last 3: 8,3,2)
- */
-class KAverage
+// Task 2 (25 points)
+// Create a class 'WeatherStation' that tracks temperature readings
+class WeatherStation
 {
 private:
-    // Add your member variables here
-    queue<int> window;
-    int k;
-    double sum;
+    // Define your data members here
+    std::deque<double> readings;
+    double highest = -1000.0;
+    double lowest = 1000.0;
 
 public:
-    KAverage(int k) : k(k), sum(0) {}
+    // Constructor
+    WeatherStation() {}
 
-    double add(int val)
+    // Add a temperature reading
+    void addReading(double temperature)
     {
-        // TODO: Implement add operation
-        window.push(val);
-        sum += val;
-        if (window.size() > k)
-        {
-            sum -= window.front();
-            window.pop();
-        }
-        return sum / window.size();
+        // Your code here
+        readings.push_back(temperature);
+        highest = std::max(highest, temperature);
+        lowest = std::min(lowest, temperature);
     }
 
-    // Add any helper methods you need
+    // Get the average of last N readings
+    // Return -1 if N is greater than number of readings
+    double getAverageOfLastN(int N)
+    {
+        // Your code here
+        if (N > readings.size())
+            return -1;
+        double sum = 0;
+        auto it = readings.rbegin();
+        for (int i = 0; i < N; i++)
+            sum += *it++;
+        return sum / N;
+    }
+
+    // Get the highest temperature recorded so far
+    double getHighestTemperature()
+    {
+        // Your code here
+        return highest;
+    }
+
+    // Get the lowest temperature recorded so far
+    double getLowestTemperature()
+    {
+        // Your code here
+        return lowest;
+    }
+
+    // Get count of readings within the specified range (inclusive)
+    int getReadingsInRange(double minTemp, double maxTemp)
+    {
+        // Your code here
+        return std::count_if(readings.begin(), readings.end(),
+            [minTemp, maxTemp](double temp) {
+                return temp >= minTemp && temp <= maxTemp;
+            });
+    }
 };
 
-// Problem 4: Parentheses Score
-/**
- * Given a balanced string containing only '(' and ')', compute its score:
- * - Empty string has score 0
- * - AB has score A + B where A and B are balanced strings
- * - (A) has score 2 * A where A is a balanced string
- * 
- * Example:
- * "()" = 1
- * "(())" = 2
- * "(()(()))" = 6
- * 
- * @param s String containing only parentheses
- * @return Score of the string
- */
-int scoreParentheses(string s)
+// Task 3 (25 points)
+// Implement a function that compresses a string using run-length encoding
+// For each sequence of repeated characters, write the character followed by count
+// Only encode sequences of 2 or more repeated characters
+// Example: "AABBBCCCC" → "A2B3C4"
+// Example: "ABCDE" → "ABCDE" (no compression needed)
+std::string compressString(const std::string &input)
 {
-    // TODO: Implement your solution here
-    stack<int> st;
-    st.push(0);
-    for (char c : s)
+    // Your code here
+    if (input.empty())
+        return "";
+    std::string result;
+    char current = input[0];
+    int count = 1;
+    for (size_t i = 1; i <= input.length(); i++)
     {
-        if (c == '(')
-            st.push(0);
+        if (i < input.length() && input[i] == current)
+            count++;
         else
         {
-            int curr = st.top();
-            st.pop();
-            int val = (curr == 0) ? 1 : curr * 2;
-            st.top() += val;
+            if (count > 1)
+                result += current + std::to_string(count);
+            else
+                result += current;
+            if (i < input.length())
+            {
+                current = input[i];
+                count = 1;
+            }
         }
     }
-    return st.top();
+    return result;
 }
 
-// Test functions
-void testProblem1()
+// Task 4 (30 points)
+// Create a class 'OrderBook' that manages a simple order matching system
+class OrderBook
 {
-    cout << "\nTesting Problem 1: Array Product Signs" << endl;
-    cout << string(40, '-') << endl;
-
-    vector<pair<vector<int>, vector<int>>> testCases = {
-        {{1, -2, -3, 4}, {1, -1, -1, 1}},
-        {{1, 2, 3, 4}, {1, 1, 1, 1}},
-        {{1, 0, -3}, {0, -1, 0}},
+public:
+    enum OrderType
+    {
+        BUY,
+        SELL
     };
 
-    try {
-        for (const auto& [input, expected] : testCases) {
-            vector<int> result = productSigns(input);
-            assert(result == expected);
+    struct Order
+    {
+        int orderId;
+        OrderType type;
+        double price;
+        int quantity;
+    };
+
+private:
+    // Define your data members here
+    struct OrderInfo
+    {
+        OrderType type;
+        double price;
+        int quantity;
+    };
+    std::unordered_map<int, OrderInfo> orders;
+    std::map<double, int, std::greater<double>> buyOrders;
+    std::map<double, int> sellOrders;
+
+public:
+    // Constructor
+    OrderBook() {}
+
+    // Add a new order to the book
+    // Return true if order was added successfully
+    // Return false if orderId already exists
+    bool addOrder(int orderId, OrderType type, double price, int quantity)
+    {
+        // Your code here
+        if (orders.find(orderId) != orders.end())
+            return false;
+        orders[orderId] = {type, price, quantity};
+        if (type == BUY)
+            buyOrders[price] += quantity;
+        else
+            sellOrders[price] += quantity;
+        return true;
+    }
+
+    // Cancel an existing order
+    // Return true if order was found and cancelled
+    // Return false if order doesn't exist
+    bool cancelOrder(int orderId)
+    {
+        // Your code here
+        auto it = orders.find(orderId);
+        if (it == orders.end())
+            return false;
+        OrderInfo &info = it->second;
+        if (info.type == BUY)
+        {
+            buyOrders[info.price] -= info.quantity;
+            if (buyOrders[info.price] == 0)
+                buyOrders.erase(info.price);
         }
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
-
-void testProblem2() {
-    cout << "\nTesting Problem 2: Reverse Words" << endl;
-    cout << string(40, '-') << endl;
-
-    vector<pair<string, string>> testCases = {
-        {"  hello   world  python  ", "python world hello"},
-        {"the sky is blue", "blue is sky the"},
-        {"   spaces   ", "spaces"},
-    };
-
-    try {
-        for (const auto& [input, expected] : testCases) {
-            string result = reverseWords(input);
-            assert(result == expected);
+        else
+        {
+            sellOrders[info.price] -= info.quantity;
+            if (sellOrders[info.price] == 0)
+                sellOrders.erase(info.price);
         }
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
-
-void testProblem3() {
-    cout << "\nTesting Problem 3: Last K Elements Average" << endl;
-    cout << string(40, '-') << endl;
-
-    try {
-        KAverage avg(3);
-        assert(abs(avg.add(5) - 5.0) < 0.01);
-        assert(abs(avg.add(8) - 6.5) < 0.01);
-        assert(abs(avg.add(3) - 5.33) < 0.01);
-        assert(abs(avg.add(2) - 4.33) < 0.01);
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
-
-void testProblem4() {
-    cout << "\nTesting Problem 4: Parentheses Score" << endl;
-    cout << string(40, '-') << endl;
-
-    vector<pair<string, int>> testCases = {
-        {"()", 1},
-        {"(())", 2},
-        {"(()(()))", 6},
-        {"((()))", 4},
-    };
-
-    try {
-        for (const auto& [input, expected] : testCases) {
-            int result = scoreParentheses(input);
-            assert(result == expected);
-        }
-        cout << "✓ All tests passed!" << endl;
-    } catch (const exception& e) {
-        cout << "✗ Test failed: " << e.what() << endl;
-    }
-}
-
-void printProblemDescription(int problemNum, const string& description) {
-    cout << "\nProblem " << problemNum << endl;
-    cout << string(40, '=') << endl;
-    cout << description << endl;
-    cout << string(40, '-') << endl;
-}
-
-void runAllTests() {
-    cout << "\n=== Running Tests ===" << endl;
-    auto start = high_resolution_clock::now();
-    testProblem1();
-    testProblem2();
-    testProblem3();
-    testProblem4();
-    auto end = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end - start);
-    cout << "\nAll tests completed in " << fixed << setprecision(2)
-         << duration.count() / 1000.0 << " seconds" << endl;
-}
-
-int main() {
-    cout << "\nC++ Coding Interview Questions" << endl;
-    cout << string(30, '=') << endl;
-    cout << "Time allowed: 60 minutes\n" << endl;
-    cout << "Instructions:" << endl;
-    cout << "- Implement the solution for each problem" << endl;
-    cout << "- Use only standard C++ libraries" << endl;
-    cout << "- Focus on both correctness and code quality" << endl;
-    cout << "- Run this file to test your solutions" << endl;
-
-    vector<pair<int, string>> problems = {
-        {1, "Calculate signs of products excluding each element"},
-        {2, "Reverse the order of words in a string"},
-        {3, "Implement a class to track averages of last K elements"},
-        {4, "Calculate score of nested parentheses"}
-    };
-
-    for (const auto& [num, desc] : problems) {
-        printProblemDescription(num, desc);
+        orders.erase(it);
+        return true;
     }
 
-    runAllTests();
+    // Get the best (highest) buy price currently in the order book
+    // Return -1 if no buy orders exist
+    double getBestBuyPrice()
+    {
+        // Your code here
+        if (buyOrders.empty())
+            return -1;
+        return buyOrders.begin()->first;
+    }
+
+    // Get the best (lowest) sell price currently in the order book
+    // Return -1 if no sell orders exist
+    double getBestSellPrice()
+    {
+        // Your code here
+        if (sellOrders.empty())
+            return -1;
+        return sellOrders.begin()->first;
+    }
+
+    // Get total quantity of all orders at a specific price
+    int getTotalQuantityAtPrice(double price)
+    {
+        // Your code here
+        int buyQty = buyOrders.count(price) ? buyOrders[price] : 0;
+        int sellQty = sellOrders.count(price) ? sellOrders[price] : 0;
+        return buyQty + sellQty;
+    }
+};
+
+// Test cases
+int main()
+{
+    // Test Task 1: Matrix Rotation
+    {
+        std::vector<std::vector<int>> matrix = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+        std::vector<std::vector<int>> expected = {
+            {7, 4, 1},
+            {8, 5, 2},
+            {9, 6, 3}
+        };
+        rotateMatrix(matrix);
+        assert(matrix == expected);
+
+        // Test empty matrix
+        std::vector<std::vector<int>> empty;
+        rotateMatrix(empty);
+        assert(empty.empty());
+
+        // Test 1x1 matrix
+        std::vector<std::vector<int>> single = {{1}};
+        rotateMatrix(single);
+        assert(single == std::vector<std::vector<int>>{{1}});
+    }
+
+    // Test Task 2: Weather Station
+    {
+        WeatherStation station;
+        station.addReading(23.5);
+        station.addReading(22.0);
+        station.addReading(24.5);
+        station.addReading(23.0);
+
+        assert(station.getAverageOfLastN(2) == 23.75);
+        assert(station.getHighestTemperature() == 24.5);
+        assert(station.getLowestTemperature() == 22.0);
+        assert(station.getReadingsInRange(23.0, 24.0) == 2);
+        assert(station.getAverageOfLastN(5) == -1);  // Not enough readings
+    }
+
+    // Test Task 3: String Compression
+    {
+        assert(compressString("AABBBCCCC") == "A2B3C4");
+        assert(compressString("ABCDE") == "ABCDE");
+        assert(compressString("") == "");
+        assert(compressString("AAA") == "A3");
+        assert(compressString("AAABBAAA") == "A3B2A3");
+    }
+
+    // Test Task 4: Order Book
+    {
+        OrderBook book;
+        assert(book.addOrder(1, OrderBook::BUY, 100.0, 10));
+        assert(!book.addOrder(1, OrderBook::BUY, 101.0, 5));  // Duplicate ID
+        assert(book.addOrder(2, OrderBook::SELL, 102.0, 15));
+
+        assert(book.getBestBuyPrice() == 100.0);
+        assert(book.getBestSellPrice() == 102.0);
+        assert(book.getTotalQuantityAtPrice(100.0) == 10);
+
+        assert(book.cancelOrder(1));
+        assert(!book.cancelOrder(999));  // Non-existent order
+        assert(book.getBestBuyPrice() == -1);  // No buy orders left
+    }
+
+    std::cout << "All tests passed!\n";
     return 0;
 }
