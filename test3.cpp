@@ -11,8 +11,11 @@ Implement the required methods to manage tasks.
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <map>
+#include <climits>
 
-class Task {
+class Task
+{
 private:
     std::string title;
     int priority;
@@ -22,14 +25,38 @@ public:
     // TODO: Write a constructor that takes the task's title and priority (1-5)
     //       Initialize isComplete as false
     //       Ensure priority is between 1-5, if not, set it to 1
+    Task(std::string title, int prio) :
+        title(title), isComplete(false)
+    {
+        if (prio > 5 || prio < 1)
+            priority = 1;
+        else
+            priority = prio;
+    }
 
     // TODO: Write a method called completeTask that marks the task as complete
+    void completeTask()
+    {
+        isComplete = true;
+    }
 
     // TODO: Write a method called getPriority that returns the task's priority
+    int getPriority()
+    {
+        return priority;
+    }
 
     // TODO: Write a method called changePriority that takes a new priority value
     //       Only change if the new priority is between 1-5
     //       Return true if change was successful, false otherwise
+    bool changePriority(int prio)
+    {
+        if (prio > 5 || prio < 1)
+            return false;
+        else
+            priority = prio;
+        return true;
+    }
 };
 
 /*
@@ -38,16 +65,21 @@ Create a class that simulates a basic bank account with deposits,
 withdrawals, and balance tracking.
 */
 
-class BankAccount {
+class BankAccount
+{
 private:
     // TODO: Create member variables to store:
     //       - Account holder's name
     //       - Current balance
     //       - Transaction history (as a vector of doubles)
+    std::string name;
+    double balance;
+    std::vector<double> history;
 
 public:
     // TODO: Write a constructor that takes the account holder's name
     //       Initialize balance to 0.0
+    BankAccount(std::string name) : name(name), balance(0.0f), history({}) {}
 
     // TODO: Write a method called deposit that:
     //       - Takes an amount to deposit
@@ -55,15 +87,40 @@ public:
     //       - Adds it to transaction history
     //       - Returns new balance
     //       - Only accept positive deposits
+    double deposit(double money)
+    {
+        if (money < 0.0)
+            return balance;
+        balance += money;
+        history.push_back(money);
+        return balance;
+    }
 
     // TODO: Write a method called withdraw that:
     //       - Takes an amount to withdraw
     //       - Subtracts from balance if sufficient funds
     //       - Adds to transaction history as negative number
     //       - Returns true if successful, false if insufficient funds
+    bool withdraw(double money)
+    {
+        if (money < 0.0)
+            return false;
+        else if (money > balance)
+            return false;
+        else
+        {
+            balance -= money;
+            history.push_back(-money);
+            return true;
+        }
+    }
 
     // TODO: Write a method called getTransactionCount that returns
     //       the total number of transactions (deposits + withdrawals)
+    int getTransactionCount()
+    {
+        return history.size();
+    }
 };
 
 /*
@@ -74,31 +131,56 @@ Complete the following functions to analyze vectors of numbers
 // TODO: Write a function that takes a vector of integers and returns
 // a new vector containing only numbers that appear exactly once
 // Example: [1,2,2,3,3,3,4] should return [1,4]
-std::vector<int> findUniqueNumbers(const std::vector<int>& numbers) {
+std::vector<int> findUniqueNumbers(const std::vector<int>& numbers)
+{
     // Your code here
+    std::map<int, int> mapNums = {};
+    std::vector<int> unique = {};
+    for (int num : numbers)
+        mapNums[num]++;
+    for (auto mapn : mapNums)
+        if (mapn.second == 1)
+            unique.push_back(mapn.first);
+    return unique;
 }
 
 // TODO: Write a function that takes a vector of integers and returns
 // the second largest number in the vector
 // If no second largest exists (empty or single element), return -1
-int findSecondLargest(const std::vector<int>& numbers) {
-    // Your code here
+int findSecondLargest(const std::vector<int>& numbers)
+{
+    if (numbers.size() < 2)
+        return -1;
+    int largest = INT_MIN;
+    int secondLargest = INT_MIN;
+    for (int num : numbers)
+        if (num > largest)
+            largest = num;
+    for (int num : numbers)
+        if (num > secondLargest && num != largest)
+            secondLargest = num;
+    if (secondLargest == INT_MIN)
+        return -1;
+    return secondLargest;
 }
 
 // Helper function to print vectors for testing
-void printVector(const std::vector<int>& vec, const std::string& label) {
+void printVector(const std::vector<int>& vec, const std::string& label)
+{
     std::cout << label << ": [";
-    for (size_t i = 0; i < vec.size(); ++i) {
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
         std::cout << vec[i];
         if (i < vec.size() - 1) std::cout << ", ";
     }
     std::cout << "]\n";
 }
 
-int main() {
+int main()
+{
     // Test Task class
     std::cout << "\n=== Testing Task Class ===\n";
-    
+
     // Test constructor and priority validation
     Task task1("High Priority Task", 2);    // Valid priority
     Task task2("Invalid Priority Task", 6);  // Invalid priority should default to 1
