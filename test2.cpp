@@ -21,15 +21,30 @@ private:
 public:
     // TODO: Write a constructor that takes the book's title
     //       Initialize isCheckedOut as false
+    Book(std::string title) : title(title), isCheckedOut(false), dueDate("") {}
 
     // TODO: Write a method called checkOut that takes a due date string
     //       and marks the book as checked out
+    void checkOut(std::string checkOutDate)
+    {
+        dueDate = checkOutDate;
+        isCheckedOut = true;
+    }
 
     // TODO: Write a method called returnBook that marks the book as returned
     //       and clears the due date
+    void returnBook()
+    {
+        dueDate = "";
+        isCheckedOut = false;
+    }
 
     // TODO: Write a method called isAvailable that returns whether
     //       the book can be checked out (not already checked out)
+    bool isAvailable()
+    {
+        return !isCheckedOut;
+    }
 };
 
 /*
@@ -37,20 +52,52 @@ Question 2: Temperature Tracker (5 minutes)
 Create a class that tracks daily temperatures and provides temperature statistics.
 */
 
-class TemperatureTracker 
+class TemperatureTracker
 {
 private:
     // TODO: Create a vector to store daily temperatures (as doubles)
+    std::vector<double> temperatures;
 
 public:
+    TemperatureTracker() {}
+
     // TODO: Write a method to add a temperature reading
+    void addTemperature(double temp)
+    {
+        temperatures.push_back(temp);
+    }
 
     // TODO: Write a method to get the highest recorded temperature
+    double getHighestTemperature()
+    {
+        double highest = 0.0f;
+        for (double temp : temperatures)
+            if (temp > highest)
+                highest = temp;
+        return highest;
+    }
 
     // TODO: Write a method to get the average temperature
+    double getAverageTemperature()
+    {
+        double average = 0.0f;
+        double total = 0.0f;
+        for (double temp : temperatures)
+            total += temp;
+        average = total / temperatures.size();
+        return average;
+    }
 
     // TODO: Write a method that returns how many days were above
     //       a specified temperature threshold
+    int getDaysAboveThreshold(double temp)
+    {
+        int count = 0;
+        for (double current : temperatures)
+            if (current > temp)
+                count++;
+        return count;
+    }
 };
 
 /*
@@ -65,6 +112,20 @@ Complete the following functions to process strings
 bool isPalindrome(const std::string& text)
 {
     // Your code here
+    std::string filtered;
+    for (char c : text)
+        if (std::isalnum(c))
+            filtered += std::tolower(c);
+    size_t start = 0;
+    size_t end = filtered.length() - 1;
+    while (start < end)
+    {
+        if (filtered[start] != filtered[end])
+            return false;
+        start++;
+        end--;
+    }
+    return true;
 }
 
 // TODO: Write a function that takes a string and returns
@@ -73,6 +134,14 @@ bool isPalindrome(const std::string& text)
 std::string removeVowels(const std::string& text)
 {
     // Your code here
+    std::string removed = "";
+    for (char c : text)
+    {
+        if (c != 'a' && c != 'e' && c != 'i' && c != 'o' && c != 'u' &&
+            c != 'A' && c != 'E' && c != 'I' && c != 'O' && c != 'U')
+            removed += c;
+    }
+    return removed;
 }
 
 int main()
@@ -81,15 +150,15 @@ int main()
     std::cout << "\n=== Testing Book Class ===\n";
     Book book1("The Great Gatsby");
     Book book2("1984");
-    
+
     std::cout << "Initial availability check:\n";
     std::cout << "Book 1 available: " << book1.isAvailable() << std::endl;
     std::cout << "Book 2 available: " << book2.isAvailable() << std::endl;
-    
+
     book1.checkOut("2024-12-01");
     std::cout << "\nAfter checking out book1:\n";
     std::cout << "Book 1 available: " << book1.isAvailable() << std::endl;
-    
+
     book1.returnBook();
     std::cout << "\nAfter returning book1:\n";
     std::cout << "Book 1 available: " << book1.isAvailable() << std::endl;
